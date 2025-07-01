@@ -76,11 +76,11 @@ This project is broken down into distinct phases. We will follow this plan step-
 
 **Objectives:**
 
-- [ ] **Install All Dependencies**: Ensure all required libraries are installed.
-- [ ] **Setup Theme Provider**: Create a `ThemeProvider` for light/dark mode toggling.
-- [ ] **Create Theme Toggle Component**: Build a UI switch to change themes and place it in the main layout.
-- [ ] **Global Animation Wrapper**: Create a reusable component for page transitions using `framer-motion`.
-- [ ] **Setup `react-email`**: Initialize the `react-email` development environment to start building email templates.
+- [x] **Install All Dependencies**: Ensure all required libraries are installed.
+- [x] **Setup Theme Provider**: Create a `ThemeProvider` for light/dark mode toggling.
+- [x] **Create Theme Toggle Component**: Build a UI switch to change themes and place it in the main layout.
+- [x] **Global Animation Wrapper**: Create a reusable component for page transitions using `framer-motion`.
+- [x] **Setup `react-email`**: Initialize the `react-email` development environment to start building email templates.
 
 **Action Plan:**
 
