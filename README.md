@@ -26,7 +26,7 @@ A modern, full-stack web application built with Next.js, Auth.js, and Shadcn, de
 A curated selection of modern technologies to build a robust and beautiful application.
 
 | Category            | Technology                                                                                                 |
-| ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| :------------------ | :--------------------------------------------------------------------------------------------------------- |
 | **Framework**       | ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)                 |
 | **Styling**         | ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css) |
 | **UI Components**   | ![Shadcn/ui](https://img.shields.io/badge/Shadcn/ui-latest-black?style=for-the-badge)                      |
@@ -35,6 +35,7 @@ A curated selection of modern technologies to build a robust and beautiful appli
 | **Database ORM**    | ![Mongoose](https://img.shields.io/badge/Mongoose-latest-880000?style=for-the-badge)                       |
 | **Email Service**   | ![Resend](https://img.shields.io/badge/Resend-latest-ea4335?style=for-the-badge)                           |
 | **Email Templates** | ![React Email](https://img.shields.io/badge/React_Email-latest-1a1a1a?style=for-the-badge&logo=react)      |
+| **Image Hosting**   | ![ImageKit](https://img.shields.io/badge/ImageKit-latest-ff9933?style=for-the-badge&logo=imagekit)         |
 | **Language**        | ![TypeScript](https://img.shields.io/badge/TypeScript-latest-3178C6?style=for-the-badge&logo=typescript)   |
 
 ### 🎨 Color Palette: "Northern Lights"
@@ -48,7 +49,7 @@ We will strictly adhere to the `Northern Lights` theme installed via `tweakcn.co
 This project is broken down into distinct phases. We will follow this plan step-by-step.
 
 | Phase | Title                                 | Status           |
-| :---: | ------------------------------------- | ---------------- |
+| :---: | :------------------------------------ | :--------------- |
 |   0   | Project Initialization                | ✅ `Completed`   |
 |   1   | Foundation, Theming & Animation       | 🟡 `In Progress` |
 |   2   | Database & Auth.js Integration        | ⚪ `Not Started` |
@@ -75,11 +76,20 @@ This project is broken down into distinct phases. We will follow this plan step-
 
 **Objectives:**
 
-- [ ] **Install All Dependencies**: Ensure `next-auth`, `mongoose`, `bcrypt`, `resend`, and `react-email` are installed.
+- [ ] **Install All Dependencies**: Ensure all required libraries are installed.
 - [ ] **Setup Theme Provider**: Create a `ThemeProvider` for light/dark mode toggling.
 - [ ] **Create Theme Toggle Component**: Build a UI switch to change themes and place it in the main layout.
 - [ ] **Global Animation Wrapper**: Create a reusable component for page transitions using `framer-motion`.
 - [ ] **Setup `react-email`**: Initialize the `react-email` development environment to start building email templates.
+
+**Action Plan:**
+
+1.  **Install Dependencies**:
+    ```bash
+    npm install next-auth @auth/mongoose-adapter mongoose bcrypt imagekit
+    npm install resend react-email @react-email/components -E
+    npm install -D @types/bcrypt
+    ```
 
 ### **Phase 2: Database & Auth.js Integration** `[Status: ⚪ Not Started]`
 
@@ -88,7 +98,7 @@ This project is broken down into distinct phases. We will follow this plan step-
 **Objectives:**
 
 - [ ] **Setup MongoDB Connection**: Create a singleton connection function in the `lib` directory.
-- [ ] **Define Mongoose Schema**: Create the `User` schema including fields for `name`, `email`, `password`, `image` (for profile photo), and `userType` (`Admin`/`Non-Admin`).
+- [ ] **Define Mongoose Schema**: Create the `User` schema including fields for `name`, `email`, `password`, `image` (for profile photo URL), and `userType` (`Admin`/`Non-Admin`).
 - [ ] **Configure Auth.js**: Create the `app/api/auth/[...nextauth]/route.ts` handler.
 - [ ] **Add Auth Providers**: Configure the `CredentialsProvider` for email/password login.
 - [ ] **Integrate Mongoose Adapter**: Connect Auth.js to your MongoDB database using the Mongoose adapter.
@@ -102,7 +112,7 @@ This project is broken down into distinct phases. We will follow this plan step-
 - [ ] **Build Registration Page**: Design the UI at `/register` with forms for name, email, password, and a file input for the profile photo.
 - [ ] **Build Login Page**: Design the UI at `/login` with forms for email and password.
 - [ ] **Implement Client-Side Validation**: Use `zod` and `react-hook-form` for instant form validation.
-- [ ] **Create Registration API**: Develop the `/api/register` endpoint to handle user creation, password hashing with `bcrypt`, and storing the user in the database.
+- [ ] **Create Registration API**: Develop the `/api/register` endpoint to handle user creation, password hashing, and **uploading the profile photo to ImageKit to store the URL**.
 
 ### **Phase 4: Email Verification System** `[Status: ⚪ Not Started]`
 
@@ -143,9 +153,9 @@ This project is broken down into distinct phases. We will follow this plan step-
 
 **Objectives:**
 
-- [ ] **View Profile**: On the Non-Admin dashboard, display all of the logged-in user's data, including their profile photo.
+- [ ] **View Profile**: On the Non-Admin dashboard, display all of the logged-in user's data, including their profile photo from ImageKit.
 - [ ] **Edit Profile**: Implement a form (e.g., in a `Dialog` or `Sheet`) that allows users to update their name and other details.
-- [ ] **Change Profile Photo**: Implement the functionality for a user to upload and change their profile photo.
+- [ ] **Change Profile Photo**: Implement the functionality for a user to upload and change their profile photo **using ImageKit**.
 - [ ] **Secure Password Reset**: Build the "forgot/change password" flow that sends a secure, one-day valid token via email to authorize a password change.
 
 ### **Phase 8: CRUD Operations: Admin** `[Status: ⚪ Not Started]`
@@ -189,6 +199,11 @@ This project is broken down into distinct phases. We will follow this plan step-
     # Resend
     RESEND_API_KEY="your_resend_api_key"
     EMAIL_FROM="onboarding@resend.dev"
+
+    # ImageKit
+    NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY="your_imagekit_public_key"
+    IMAGEKIT_PRIVATE_KEY="your_imagekit_private_key"
+    IMAGEKIT_URL_ENDPOINT="your_imagekit_url_endpoint"
     ```
 
 4.  **Run the development server:**
