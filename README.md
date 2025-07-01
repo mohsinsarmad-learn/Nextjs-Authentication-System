@@ -97,11 +97,11 @@ This project is broken down into distinct phases. We will follow this plan step-
 
 **Objectives:**
 
-- [ ] **Setup MongoDB Connection**: Create a singleton connection function in the `lib` directory.
-- [ ] **Define Mongoose Schema**: Create the `User` schema including fields for `name`, `email`, `password`, `image` (for profile photo URL), and `userType` (`Admin`/`Non-Admin`).
-- [ ] **Configure Auth.js**: Create the `app/api/auth/[...nextauth]/route.ts` handler.
-- [ ] **Add Auth Providers**: Configure the `CredentialsProvider` for email/password login.
-- [ ] **Integrate Mongoose Adapter**: Connect Auth.js to your MongoDB database using the Mongoose adapter.
+- [x] **Setup MongoDB Connection**: Create a singleton connection function in the `lib` directory.
+- [x] **Define Mongoose Schema**: Create the `User` schema including fields for `name`, `email`, `password`, `image` (for profile photo URL), and `userType` (`Admin`/`Non-Admin`).
+- [x] **Configure Auth.js**: Create the `app/api/auth/[...nextauth]/route.ts` handler.
+- [x] **Add Auth Providers**: Configure the `CredentialsProvider` for email/password login.
+- [x] **Integrate Mongoose Adapter**: Intentionally skipped. A manual database logic implementation within the `authorize` functions was chosen to support the custom dual-model authentication structure.
 
 ### **Phase 3: Core Authentication UI & Logic** `[Status: ⚪ Not Started]`
 
