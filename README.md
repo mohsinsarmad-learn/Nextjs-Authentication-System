@@ -1,12 +1,8 @@
----
-
 # 🚀 Web Application Project - D1 Evaluation
 
 A modern, full-stack web application built with Next.js, Auth.js, and Shadcn. [cite\_start]This project is meticulously planned to meet all D1 30% evaluation parameters[cite: 1].
 
 > [cite\_start]This project is a comprehensive user management system featuring a complete authentication flow, role-based access, session management, and full CRUD operations for different user types[cite: 26, 27, 31]. Development will proceed phase-by-phase according to this plan.
-
----
 
 ## ✨ Core Features & Requirements
 
