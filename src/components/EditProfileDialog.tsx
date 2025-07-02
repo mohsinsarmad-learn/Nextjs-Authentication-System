@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner"; // Import directly from sonner
+import { toast } from "sonner";
+import { useSession } from "next-auth/react"; // Import the useSession hook
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +29,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { User as UserIcon } from "lucide-react";
 
-// ... (interface and schema remain the same) ...
 interface EditProfileDialogProps {
   user: { id?: string | null; name?: string | null };
 }
@@ -44,14 +44,11 @@ export default function EditProfileDialog({ user }: EditProfileDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { update } = useSession(); // Get the update function from the hook
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      firstname: user.name?.split(" ")[0] || "",
-      lastname: user.name?.split(" ").slice(1).join(" ") || "",
-      contact: "",
-    },
+    defaultValues: { firstname: "", lastname: "", contact: "" },
   });
 
   useEffect(() => {
@@ -72,14 +69,12 @@ export default function EditProfileDialog({ user }: EditProfileDialogProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    let newImageUrl: string | null = null;
-    let newImageFileId: string | null = null;
-
     try {
+      let newImageUrl: string | null = null;
+      let newImageFileId: string | null = null;
       if (values.profileImage) {
         const authResponse = await fetch("/api/imagekit/auth");
         const authData = await authResponse.json();
-
         const formData = new FormData();
         formData.append("file", values.profileImage);
         formData.append(
@@ -91,15 +86,10 @@ export default function EditProfileDialog({ user }: EditProfileDialogProps) {
         formData.append("token", authData.token);
         formData.append("fileName", values.profileImage.name);
         formData.append("folder", "/userPics/");
-
         const imageKitResponse = await fetch(
           "https://upload.imagekit.io/api/v1/files/upload",
-          {
-            method: "POST",
-            body: formData,
-          }
+          { method: "POST", body: formData }
         );
-
         const imageKitData = await imageKitResponse.json();
         if (!imageKitResponse.ok)
           throw new Error(imageKitData.message || "Image upload failed.");
@@ -121,24 +111,25 @@ export default function EditProfileDialog({ user }: EditProfileDialogProps) {
         body: JSON.stringify(updatePayload),
       });
 
-      const updateData = await updateResponse.json();
-      if (!updateResponse.ok)
+      if (!updateResponse.ok) {
+        const updateData = await updateResponse.json();
         throw new Error(updateData.message || "Failed to update profile.");
+      }
 
-      // Use sonner's toast.success
+      // Manually trigger a session update to refetch the user's data
+      await update();
+
       toast.success("Profile updated successfully.");
       setIsOpen(false);
       router.refresh();
     } catch (error: any) {
       console.error("Update Profile Error:", error);
-      // Use sonner's toast.error
       toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
   }
 
-  // ... (return statement with JSX is the same) ...
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
