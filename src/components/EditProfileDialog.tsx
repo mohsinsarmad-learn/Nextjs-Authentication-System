@@ -1,10 +1,12 @@
 // src/components/EditProfileDialog.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner"; // Import directly from sonner
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,47 +28,117 @@ import {
 import { Input } from "@/components/ui/input";
 import { User as UserIcon } from "lucide-react";
 
-// Define the shape of the user prop
+// ... (interface and schema remain the same) ...
 interface EditProfileDialogProps {
-  user: {
-    id?: string | null;
-    name?: string | null;
-    // We'll fetch the full user object later to get contact etc.
-  };
+  user: { id?: string | null; name?: string | null };
 }
 
-// --- Validation Schema ---
 const formSchema = z.object({
   firstname: z.string().min(2, "First name must be at least 2 characters."),
   lastname: z.string().min(2, "Last name must be at least 2 characters."),
   contact: z.string().optional(),
-  profileImage: z.any().optional(),
+  profileImage: z.instanceof(File).optional(),
 });
 
 export default function EditProfileDialog({ user }: EditProfileDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    // We will pre-fill this form later
     defaultValues: {
       firstname: user.name?.split(" ")[0] || "",
-      lastname: user.name?.split(" ")[1] || "",
+      lastname: user.name?.split(" ").slice(1).join(" ") || "",
       contact: "",
     },
   });
 
-  // We will implement this function in the next step
+  useEffect(() => {
+    if (isOpen) {
+      fetch("/api/profile/user")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data) {
+            form.reset({
+              firstname: data.firstname,
+              lastname: data.lastname,
+              contact: data.contact || "",
+            });
+          }
+        });
+    }
+  }, [isOpen, form]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Form values:", values);
-    // TODO:
-    // 1. Get ImageKit auth params from our API
-    // 2. Upload image to ImageKit if one is selected
-    // 3. Send all data (including new image URL/ID) to our PUT API
-    alert("Form submission logic not yet implemented.");
-    setIsOpen(false);
+    setIsLoading(true);
+    let newImageUrl: string | null = null;
+    let newImageFileId: string | null = null;
+
+    try {
+      if (values.profileImage) {
+        const authResponse = await fetch("/api/imagekit/auth");
+        const authData = await authResponse.json();
+
+        const formData = new FormData();
+        formData.append("file", values.profileImage);
+        formData.append(
+          "publicKey",
+          process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!
+        );
+        formData.append("signature", authData.signature);
+        formData.append("expire", authData.expire);
+        formData.append("token", authData.token);
+        formData.append("fileName", values.profileImage.name);
+        formData.append("folder", "/userPics/");
+
+        const imageKitResponse = await fetch(
+          "https://upload.imagekit.io/api/v1/files/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const imageKitData = await imageKitResponse.json();
+        if (!imageKitResponse.ok)
+          throw new Error(imageKitData.message || "Image upload failed.");
+        newImageUrl = imageKitData.url;
+        newImageFileId = imageKitData.fileId;
+      }
+
+      const updatePayload = {
+        firstname: values.firstname,
+        lastname: values.lastname,
+        contact: values.contact,
+        ...(newImageUrl && { newImageUrl }),
+        ...(newImageFileId && { newImageFileId }),
+      };
+
+      const updateResponse = await fetch("/api/profile/user", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatePayload),
+      });
+
+      const updateData = await updateResponse.json();
+      if (!updateResponse.ok)
+        throw new Error(updateData.message || "Failed to update profile.");
+
+      // Use sonner's toast.success
+      toast.success("Profile updated successfully.");
+      setIsOpen(false);
+      router.refresh();
+    } catch (error: any) {
+      console.error("Update Profile Error:", error);
+      // Use sonner's toast.error
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
+  // ... (return statement with JSX is the same) ...
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -130,17 +202,16 @@ export default function EditProfileDialog({ user }: EditProfileDialogProps) {
             <FormField
               control={form.control}
               name="profileImage"
-              render={({ field }) => (
+              render={({ field: { onChange, value, ...rest } }) => (
                 <FormItem>
                   <FormLabel>New Profile Picture</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
                       accept="image/*"
+                      {...rest}
                       onChange={(e) =>
-                        field.onChange(
-                          e.target.files ? e.target.files[0] : null
-                        )
+                        onChange(e.target.files ? e.target.files[0] : null)
                       }
                     />
                   </FormControl>
@@ -148,7 +219,9 @@ export default function EditProfileDialog({ user }: EditProfileDialogProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit">Save changes</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Saving..." : "Save changes"}
+            </Button>
           </form>
         </Form>
       </DialogContent>

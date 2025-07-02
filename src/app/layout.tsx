@@ -5,7 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PageTransition } from "@/components/PageTransition";
 import Header from "@/components/Header"; // Import the new Header
-
+import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -31,6 +31,7 @@ export default function RootLayout({
           <main>
             <PageTransition>{children}</PageTransition>
           </main>
+          <Toaster richColors />
         </ThemeProvider>
       </body>
     </html>

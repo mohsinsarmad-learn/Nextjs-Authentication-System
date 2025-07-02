@@ -58,3 +58,25 @@ export async function PUT(request: Request) {
     );
   }
 }
+export async function GET(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user || session.user.role !== "User") {
+    return NextResponse.json({ message: "Not authorized" }, { status: 401 });
+  }
+
+  await connectToDatabase();
+  try {
+    const user = await User.findOne({ UserId: session.user.id }).select(
+      "-password"
+    );
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+    return NextResponse.json(user, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json(
+      { message: "Error fetching user data" },
+      { status: 500 }
+    );
+  }
+}
