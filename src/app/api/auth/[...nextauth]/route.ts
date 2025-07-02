@@ -99,7 +99,7 @@ export const authOptions: AuthOptions = {
   pages: {
     // We will create these pages in the next phase.
     // Auth.js will redirect to these pages.
-    signIn: "/login",
+    signIn: "/login/user",
   },
 };
 
