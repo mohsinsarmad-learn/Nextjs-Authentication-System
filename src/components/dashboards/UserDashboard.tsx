@@ -9,7 +9,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { User as UserIcon } from "lucide-react";
-
+import EditProfileDialog from "@/components/EditProfileDialog";
 // Define the shape of the user prop
 interface UserDashboardProps {
   user: {
@@ -67,10 +67,7 @@ export default function UserDashboard({ user }: UserDashboardProps) {
             </div>
           </div>
 
-          {/* We will add functionality to this button later */}
-          <Button>
-            <UserIcon className="mr-2 h-4 w-4" /> Edit Profile
-          </Button>
+          <EditProfileDialog user={user} />
         </CardContent>
       </Card>
     </div>
