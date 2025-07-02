@@ -54,7 +54,7 @@ This project is broken down into distinct phases. We will follow this plan step-
 |   1   | Foundation, Theming & Animation       | ✅ `Completed`   |
 |   2   | Database & Auth.js Integration        | ✅ `Completed`   |
 |   3   | Core Authentication UI & Logic        | ✅ `Completed`   |
-|   4   | Email Verification System             | 🟡 `In progress` |
+|   4   | Email Verification System             | ✅ `Completed`   |
 |   5   | Session Management & Protected Routes | ⚪ `Not Started` |
 |   6   | Role-Based Dashboards                 | ⚪ `Not Started` |
 |   7   | CRUD Operations: Non-Admin            | ⚪ `Not Started` |
@@ -114,17 +114,17 @@ This project is broken down into distinct phases. We will follow this plan step-
 - [x] **Implement Client-Side Validation**: Used `zod` and `react-hook-form` for instant feedback on all forms.
 - [x] **Implement Server-Side Registration Logic**: Created API endpoints to handle user and admin creation, password hashing, and database storage.
 
-### **Phase 4: Email Verification System** `[Status: 🟡 In progress]`
+### **Phase 4: Email Verification System** `[Status: ✅ Completed]`
 
 > **Goal**: Implement the token-based email verification flow to ensure user authenticity.
 
 **Objectives:**
 
-- [ ] **Design Verification Email**: Use `react-email` to create a professional email template for verification.
-- [ ] **Generate Verification Token**: Upon registration, generate a unique, secure token with a one-day expiry and save it to the database.
-- [ ] **Integrate Resend**: Configure a function to send the verification email using Resend.
-- [ ] **Create Verification API**: Build an endpoint that accepts the token, validates it, and updates the user's `emailVerified` status in the database.
-- [ ] **Block Login for Unverified Users**: Update the `CredentialsProvider` logic to prevent login if a user's email is not verified.
+- [x] **Design Verification Email**: Use `react-email` to create a professional email template for verification.
+- [x] **Generate Verification Token**: Upon registration, generate a unique, secure token with a one-day expiry and save it to the database.
+- [x] **Integrate Resend**: Configure a function to send the verification email using Resend.
+- [x] **Create Verification API**: Build an endpoint that accepts the token, validates it, and updates the user's `emailVerified` status in the database.
+- [x] **Block Login for Unverified Users**: Update the `CredentialsProvider` logic to prevent login if a user's email is not verified.
 
 ### **Phase 5: Session Management & Protected Routes** `[Status: ⚪ Not Started]`
 

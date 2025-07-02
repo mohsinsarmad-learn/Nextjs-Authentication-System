@@ -17,6 +17,7 @@ export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
+  const type = searchParams.get("type"); // Get the 'type' parameter
 
   const [status, setStatus] = useState<"verifying" | "success" | "error">(
     "verifying"
@@ -50,6 +51,12 @@ export default function VerifyEmailPage() {
     verifyToken();
   }, [token]);
 
+  const handleProceedToLogin = () => {
+    // Route to the correct login page based on the type
+    const loginPath = type === "admin" ? "/login/admin" : "/login/user";
+    router.push(loginPath);
+  };
+
   const renderIcon = () => {
     switch (status) {
       case "verifying":
@@ -69,18 +76,16 @@ export default function VerifyEmailPage() {
         <CardHeader>
           <CardTitle>Email Verification</CardTitle>
           <CardDescription>
-            Please wait while we verify your account.
+            Please wait while we process your verification request.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex justify-center">{renderIcon()}</div>
           <p className="text-lg font-medium">{message}</p>
           {status !== "verifying" && (
-            <Button
-              onClick={() => router.push("/login/user")}
-              className="w-full"
-            >
-              Proceed to Login
+            <Button onClick={handleProceedToLogin} className="w-full">
+              {/* Dynamic button text */}
+              Proceed to {type === "admin" ? "Admin" : "User"} Login
             </Button>
           )}
         </CardContent>

@@ -49,7 +49,8 @@ export async function POST(request: Request) {
 
     // --- Send Verification Email to IT Admin ---
     try {
-      const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}`;
+      // ADD &type=admin to the end of the URL
+      const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}&type=admin`;
       const itAdminEmail = process.env.IT_ADMIN_EMAIL!;
 
       if (!itAdminEmail) {

@@ -49,7 +49,8 @@ export async function POST(request: Request) {
 
     // --- Send Verification Email ---
     try {
-      const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}`;
+      // ADD &type=user to the end of the URL
+      const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}&type=user`;
 
       await resend.emails.send({
         from: "onboarding@resend.dev", // Or your custom domain
