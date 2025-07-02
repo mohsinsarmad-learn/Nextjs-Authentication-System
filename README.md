@@ -51,8 +51,8 @@ This project is broken down into distinct phases. We will follow this plan step-
 | Phase | Title                                 | Status           |
 | :---: | :------------------------------------ | :--------------- |
 |   0   | Project Initialization                | ✅ `Completed`   |
-|   1   | Foundation, Theming & Animation       | 🟡 `In Progress` |
-|   2   | Database & Auth.js Integration        | ⚪ `Not Started` |
+|   1   | Foundation, Theming & Animation       | ✅ `Completed`   |
+|   2   | Database & Auth.js Integration        | ✅ `Completed`   |
 |   3   | Core Authentication UI & Logic        | ⚪ `Not Started` |
 |   4   | Email Verification System             | ⚪ `Not Started` |
 |   5   | Session Management & Protected Routes | ⚪ `Not Started` |
@@ -70,7 +70,7 @@ This project is broken down into distinct phases. We will follow this plan step-
 - [x] Installed `framer-motion` for animations.
 - [x] Applied the "Northern Lights" theme using `tweakcn.com`.
 
-### **Phase 1: Foundation, Theming & Animation** `[Status: 🟡 In Progress]`
+### **Phase 1: Foundation, Theming & Animation** `[Status: ✅ Completed]`
 
 > **Goal**: Set up the core visual and structural elements for a consistent and polished user experience.
 
@@ -91,7 +91,7 @@ This project is broken down into distinct phases. We will follow this plan step-
     npm install -D @types/bcrypt
     ```
 
-### **Phase 2: Database & Auth.js Integration** `[Status: ⚪ Not Started]`
+### **Phase 2: Database & Auth.js Integration** `[Status: ✅ Completed]`
 
 > **Goal**: Configure the backend foundation by connecting the database and setting up the main authentication handler.
 
@@ -103,16 +103,16 @@ This project is broken down into distinct phases. We will follow this plan step-
 - [x] **Add Auth Providers**: Configure the `CredentialsProvider` for email/password login.
 - [x] **Integrate Mongoose Adapter**: Intentionally skipped. A manual database logic implementation within the `authorize` functions was chosen to support the custom dual-model authentication structure.
 
-### **Phase 3: Core Authentication UI & Logic** `[Status: ⚪ Not Started]`
+### **Phase 3: Core Authentication UI & Logic** `[Status: ✅ Completed]`
 
 > **Goal**: Build the user-facing pages and API endpoints for registration and login.
 
 **Objectives:**
 
-- [ ] **Build Registration Page**: Design the UI at `/register` with forms for name, email, password, and a file input for the profile photo.
-- [ ] **Build Login Page**: Design the UI at `/login` with forms for email and password.
-- [ ] **Implement Client-Side Validation**: Use `zod` and `react-hook-form` for instant form validation.
-- [ ] **Create Registration API**: Develop the `/api/register` endpoint to handle user creation, password hashing, and **uploading the profile photo to ImageKit to store the URL**.
+- [x] **Build Registration Pages**: Created the UI and forms for both User and Admin registration.
+- [x] **Build Login Pages**: Created the UI and forms for both User and Admin login.
+- [x] **Implement Client-Side Validation**: Used `zod` and `react-hook-form` for instant feedback on all forms.
+- [x] **Implement Server-Side Registration Logic**: Created API endpoints to handle user and admin creation, password hashing, and database storage.
 
 ### **Phase 4: Email Verification System** `[Status: ⚪ Not Started]`
 
