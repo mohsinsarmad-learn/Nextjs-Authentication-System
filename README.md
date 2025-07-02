@@ -55,7 +55,7 @@ This project is broken down into distinct phases. We will follow this plan step-
 |   2   | Database & Auth.js Integration        | ✅ `Completed`   |
 |   3   | Core Authentication UI & Logic        | ✅ `Completed`   |
 |   4   | Email Verification System             | ✅ `Completed`   |
-|   5   | Session Management & Protected Routes | ⚪ `Not Started` |
+|   5   | Session Management & Protected Routes | ✅ `Completed`   |
 |   6   | Role-Based Dashboards                 | ⚪ `Not Started` |
 |   7   | CRUD Operations: Non-Admin            | ⚪ `Not Started` |
 |   8   | CRUD Operations: Admin                | ⚪ `Not Started` |
@@ -126,15 +126,15 @@ This project is broken down into distinct phases. We will follow this plan step-
 - [x] **Create Verification API**: Build an endpoint that accepts the token, validates it, and updates the user's `emailVerified` status in the database.
 - [x] **Block Login for Unverified Users**: Update the `CredentialsProvider` logic to prevent login if a user's email is not verified.
 
-### **Phase 5: Session Management & Protected Routes** `[Status: ⚪ Not Started]`
+### **Phase 5: Session Management & Protected Routes** `[Status: ✅ Completed]`
 
 > **Goal**: Secure the application by managing user sessions and protecting sensitive content.
 
 **Objectives:**
 
-- [ ] **Configure Auth.js Callbacks**: Use the `jwt` and `session` callbacks to add custom data like `userType` and `id` to the session object.
-- [ ] **Implement Middleware**: Create `middleware.ts` to protect the `/dashboard` route.
-- [ ] **Test Redirect Logic**: Verify that any attempt to access `/dashboard` without a valid session redirects the user to the `/login` page.
+- [x] **Configure Auth.js Callbacks**: Use the `jwt` and `session` callbacks to add custom data like `userType` and `id` to the session object.
+- [x] **Implement Middleware**: Create `middleware.ts` to protect the `/dashboard` route.
+- [x] **Test Redirect Logic**: Verify that any attempt to access `/dashboard` without a valid session redirects the user to the `/login` page.
 
 ### **Phase 6: Role-Based Dashboards** `[Status: ⚪ Not Started]`
 
