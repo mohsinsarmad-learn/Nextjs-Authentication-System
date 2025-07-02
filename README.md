@@ -53,8 +53,8 @@ This project is broken down into distinct phases. We will follow this plan step-
 |   0   | Project Initialization                | ✅ `Completed`   |
 |   1   | Foundation, Theming & Animation       | ✅ `Completed`   |
 |   2   | Database & Auth.js Integration        | ✅ `Completed`   |
-|   3   | Core Authentication UI & Logic        | ⚪ `Not Started` |
-|   4   | Email Verification System             | ⚪ `Not Started` |
+|   3   | Core Authentication UI & Logic        | ✅ `Completed`   |
+|   4   | Email Verification System             | 🟡 `In progress` |
 |   5   | Session Management & Protected Routes | ⚪ `Not Started` |
 |   6   | Role-Based Dashboards                 | ⚪ `Not Started` |
 |   7   | CRUD Operations: Non-Admin            | ⚪ `Not Started` |
@@ -114,7 +114,7 @@ This project is broken down into distinct phases. We will follow this plan step-
 - [x] **Implement Client-Side Validation**: Used `zod` and `react-hook-form` for instant feedback on all forms.
 - [x] **Implement Server-Side Registration Logic**: Created API endpoints to handle user and admin creation, password hashing, and database storage.
 
-### **Phase 4: Email Verification System** `[Status: ⚪ Not Started]`
+### **Phase 4: Email Verification System** `[Status: 🟡 In progress]`
 
 > **Goal**: Implement the token-based email verification flow to ensure user authenticity.
 
