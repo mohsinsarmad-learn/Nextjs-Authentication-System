@@ -24,7 +24,8 @@ export default async function DashboardPage() {
   }
 
   if (session.user?.role === "User") {
-    return <UserDashboard />;
+    // Pass the user object as a prop
+    return <UserDashboard user={session.user} />;
   }
 
   // Fallback for any other case (shouldn't happen)
