@@ -57,8 +57,8 @@ This project is broken down into distinct phases. We will follow this plan step-
 |   4   | Email Verification System             | ✅ `Completed`   |
 |   5   | Session Management & Protected Routes | ✅ `Completed`   |
 |   6   | Role-Based Dashboards                 | ✅ `Completed`   |
-|   7   | CRUD Operations: Non-Admin            | 🟡 `In progress` |
-|   8   | CRUD Operations: Admin                | ⚪ `Not Started` |
+|   7   | CRUD Operations: Non-Admin            | ✅ `Completed`   |
+|   8   | CRUD Operations: Admin                | 🟡 `In progress` |
 
 ---
 
@@ -147,7 +147,7 @@ This project is broken down into distinct phases. We will follow this plan step-
 - [ ] **Render Dashboards Conditionally**: Based on `session.user.userType`, render either the `<AdminDashboard />` or `<NonAdminDashboard />` component.
 - [ ] **Develop Initial Dashboard Layouts**: Create the basic UI structure for both dashboard variants.
 
-### **Phase 7: CRUD Operations: Non-Admin** `[Status: 🟡 In Progress]`
+### **Phase 7: CRUD Operations: Non-Admin** `[Status: ✅ Completed]`
 
 > **Goal**: Empower users to view and manage their own profile and security settings.
 
@@ -158,7 +158,7 @@ This project is broken down into distinct phases. We will follow this plan step-
 - [ ] **Change Profile Photo**: Implement the functionality for a user to upload and change their profile photo **using ImageKit**.
 - [ ] **Secure Password Reset**: Build the "forgot/change password" flow that sends a secure, one-day valid token via email to authorize a password change.
 
-### **Phase 8: CRUD Operations: Admin** `[Status: ⚪ Not Started]`
+### **Phase 8: CRUD Operations: Admin** `[Status: 🟡 In Progress]`
 
 > **Goal**: Provide administrators with the necessary tools to manage the application's user base.
 
