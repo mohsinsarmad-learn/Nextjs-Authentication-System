@@ -29,6 +29,11 @@ export const authOptions: AuthOptions = {
         const user = await User.findOne({ email: credentials.email });
 
         if (user && (await user.comparePassword(credentials.password))) {
+          // Check if the user's email is verified
+          if (!user.isVerified) {
+            throw new Error("Please verify your email before logging in.");
+          }
+
           // On successful authentication, we return the user object.
           // We add a 'role' property to easily identify them throughout the app.
           return {
@@ -60,6 +65,13 @@ export const authOptions: AuthOptions = {
         const admin = await Admin.findOne({ email: credentials.email });
 
         if (admin && (await admin.comparePassword(credentials.password))) {
+          // Check if the admin's account has been verified
+          if (!admin.isVerified) {
+            throw new Error(
+              "This admin account has not been verified by the IT department."
+            );
+          }
+
           return {
             id: admin.AdminId,
             email: admin.email,
@@ -97,8 +109,7 @@ export const authOptions: AuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    // We will create these pages in the next phase.
-    // Auth.js will redirect to these pages.
+    // Auth.js will redirect to this page if a user is not authenticated.
     signIn: "/login/user",
   },
 };
