@@ -9,6 +9,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { User as UserIcon } from "lucide-react";
+import ChangePasswordDialog from "@/components/ChangePasswordDialog";
 import EditProfileDialog from "@/components/EditProfileDialog";
 // Define the shape of the user prop
 interface UserDashboardProps {
@@ -66,8 +67,10 @@ export default function UserDashboard({ user }: UserDashboardProps) {
               <p className="font-semibold">{user.id}</p>
             </div>
           </div>
-
-          <EditProfileDialog user={user} />
+          <div className="flex items-center gap-2">
+            <EditProfileDialog user={user} />
+            <ChangePasswordDialog />
+          </div>
         </CardContent>
       </Card>
     </div>
