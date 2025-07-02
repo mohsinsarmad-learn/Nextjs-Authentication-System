@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { PageTransition } from "@/components/PageTransition"; // Import the new component
+import { PageTransition } from "@/components/PageTransition";
+import Header from "@/components/Header"; // Import the new Header
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,15 +27,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <header className="py-4 px-6 border-b">
-            <div className="container mx-auto flex justify-between items-center">
-              <h1 className="text-xl font-bold">Project D1</h1>
-              <ThemeToggle />
-            </div>
-          </header>
-
+          <Header /> {/* Use the new dynamic Header */}
           <main>
-            {/* Wrap the children with the PageTransition component */}
             <PageTransition>{children}</PageTransition>
           </main>
         </ThemeProvider>

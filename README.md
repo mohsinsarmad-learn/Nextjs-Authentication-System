@@ -56,8 +56,8 @@ This project is broken down into distinct phases. We will follow this plan step-
 |   3   | Core Authentication UI & Logic        | ✅ `Completed`   |
 |   4   | Email Verification System             | ✅ `Completed`   |
 |   5   | Session Management & Protected Routes | ✅ `Completed`   |
-|   6   | Role-Based Dashboards                 | ⚪ `Not Started` |
-|   7   | CRUD Operations: Non-Admin            | ⚪ `Not Started` |
+|   6   | Role-Based Dashboards                 | ✅ `Completed`   |
+|   7   | CRUD Operations: Non-Admin            | 🟡 `In progress` |
 |   8   | CRUD Operations: Admin                | ⚪ `Not Started` |
 
 ---
@@ -136,7 +136,7 @@ This project is broken down into distinct phases. We will follow this plan step-
 - [x] **Implement Middleware**: Create `middleware.ts` to protect the `/dashboard` route.
 - [x] **Test Redirect Logic**: Verify that any attempt to access `/dashboard` without a valid session redirects the user to the `/login` page.
 
-### **Phase 6: Role-Based Dashboards** `[Status: ⚪ Not Started]`
+### **Phase 6: Role-Based Dashboards** `[Status: ✅ Completed]`
 
 > **Goal**: Create different dashboard experiences for `Admin` and `Non-Admin` users.
 
@@ -147,7 +147,7 @@ This project is broken down into distinct phases. We will follow this plan step-
 - [ ] **Render Dashboards Conditionally**: Based on `session.user.userType`, render either the `<AdminDashboard />` or `<NonAdminDashboard />` component.
 - [ ] **Develop Initial Dashboard Layouts**: Create the basic UI structure for both dashboard variants.
 
-### **Phase 7: CRUD Operations: Non-Admin** `[Status: ⚪ Not Started]`
+### **Phase 7: CRUD Operations: Non-Admin** `[Status: 🟡 In Progress]`
 
 > **Goal**: Empower users to view and manage their own profile and security settings.
 

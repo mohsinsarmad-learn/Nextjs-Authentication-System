@@ -47,23 +47,24 @@ export default function UserLoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setError(null);
+
     try {
+      // Let next-auth handle the redirect. This is the most reliable method.
       const result = await signIn("credentials-user", {
-        redirect: false, // We handle redirection manually
         email: values.email,
         password: values.password,
+        // Tell next-auth where to redirect on success.
+        callbackUrl: "/dashboard",
       });
 
+      // If signIn fails, it will return an error object instead of redirecting.
       if (result?.error) {
-        // Display authentication errors (e.g., "Invalid credentials")
         setError(result.error);
-      } else if (result?.ok) {
-        // On successful login, redirect to the dashboard
-        router.push("/dashboard");
+        setIsLoading(false);
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
-    } finally {
+      // This is for unexpected errors (e.g., network failure).
+      setError("An unexpected error occurred.");
       setIsLoading(false);
     }
   }

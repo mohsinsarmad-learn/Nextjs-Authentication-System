@@ -43,22 +43,23 @@ export default function AdminLoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setError(null);
+
     try {
+      // Let next-auth handle the redirect for the admin flow.
       const result = await signIn("credentials-admin", {
-        // Use the admin provider
-        redirect: false,
         email: values.email,
         password: values.password,
+        // Tell next-auth where to redirect on success.
+        callbackUrl: "/dashboard",
       });
 
+      // If signIn fails, it will return an error object instead of redirecting.
       if (result?.error) {
         setError(result.error);
-      } else if (result?.ok) {
-        router.push("/dashboard");
+        setIsLoading(false);
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
-    } finally {
+      setError("An unexpected error occurred.");
       setIsLoading(false);
     }
   }

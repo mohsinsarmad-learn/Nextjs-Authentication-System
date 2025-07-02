@@ -1,10 +1,39 @@
 // src/app/dashboard/page.tsx
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
-export default function DashboardPage() {
+// Import the dashboard components
+import AdminDashboard from "@/components/dashboards/AdminDashboard";
+import UserDashboard from "@/components/dashboards/UserDashboard";
+
+// This is an async Server Component
+export default async function DashboardPage() {
+  // Get the session on the server side
+  const session = await getServerSession(authOptions);
+
+  // Although the middleware protects this page, this is a redundant check
+  // to ensure a session exists before proceeding.
+  if (!session) {
+    redirect("/login/user");
+  }
+
+  // Conditionally render the correct dashboard based on the user's role
+  if (session.user?.role === "Admin") {
+    return <AdminDashboard />;
+  }
+
+  if (session.user?.role === "User") {
+    return <UserDashboard />;
+  }
+
+  // Fallback for any other case (shouldn't happen)
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
-      <p className="mt-4">Welcome to your dashboard. This page is protected.</p>
+    <div>
+      <h1>Error</h1>
+      <p>
+        Your user role could not be determined. Please sign out and try again.
+      </p>
     </div>
   );
 }
