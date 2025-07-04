@@ -60,3 +60,41 @@ export async function PUT(request: Request) {
     );
   }
 }
+
+export async function DELETE(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user || session.user.role !== "Admin") {
+    return NextResponse.json({ message: "Not authorized" }, { status: 401 });
+  }
+
+  await connectToDatabase();
+  try {
+    const adminToUpdate = await Admin.findOne({ AdminId: session.user.id });
+    if (!adminToUpdate) {
+      return NextResponse.json(
+        { message: "Admin not found." },
+        { status: 404 }
+      );
+    }
+
+    if (adminToUpdate.profilePicFileId) {
+      await imagekit.deleteFile(adminToUpdate.profilePicFileId);
+    }
+
+    // Reset to default
+    adminToUpdate.profilepic = ""; // Or your default avatar URL
+    adminToUpdate.profilePicFileId = undefined;
+
+    await adminToUpdate.save();
+
+    return NextResponse.json(
+      { message: "Profile picture removed successfully." },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      { message: "Error removing profile picture" },
+      { status: 500 }
+    );
+  }
+}

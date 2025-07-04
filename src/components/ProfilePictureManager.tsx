@@ -1,18 +1,14 @@
 // src/components/ProfilePictureManager.tsx
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useDropzone } from "react-dropzone";
-import ReactCrop, {
-  type Crop,
-  PixelCrop,
-  centerCrop,
-  makeAspectCrop,
-} from "react-image-crop";
+import Cropper, { Area } from "react-easy-crop";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
+import { getCroppedImg } from "@/lib/imageUtils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,63 +24,18 @@ import {
   Trash2,
   ArrowLeft,
   Loader2,
+  ZoomIn,
+  RotateCw,
 } from "lucide-react";
+import { Slider } from "./ui/slider";
+import { Label } from "./ui/label";
 
-// --- Helper function to get the cropped image data as a File ---
-function getCroppedImg(
-  image: HTMLImageElement,
-  crop: PixelCrop,
-  fileName: string
-): Promise<File> {
-  const canvas = document.createElement("canvas");
-  const scaleX = image.naturalWidth / image.width;
-  const scaleY = image.naturalHeight / image.height;
-  canvas.width = crop.width;
-  canvas.height = crop.height;
-  const ctx = canvas.getContext("2d");
-
-  if (!ctx) {
-    throw new Error("Could not get 2d context");
-  }
-
-  const pixelRatio = window.devicePixelRatio;
-  canvas.width = crop.width * pixelRatio;
-  canvas.height = crop.height * pixelRatio;
-  ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-  ctx.imageSmoothingQuality = "high";
-
-  ctx.drawImage(
-    image,
-    crop.x * scaleX,
-    crop.y * scaleY,
-    crop.width * scaleX,
-    crop.height * scaleY,
-    0,
-    0,
-    crop.width,
-    crop.height
-  );
-
-  return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        reject(new Error("Canvas is empty"));
-        return;
-      }
-      const file = new File([blob], fileName, { type: "image/png" });
-      resolve(file);
-    }, "image/png");
-  });
-}
-
-// --- Component Props ---
 interface ProfilePictureManagerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  role: "User" | "Admin"; // To determine which API and folder to use
+  role: "User" | "Admin";
 }
 
-// --- Main Component ---
 export default function ProfilePictureManager({
   open,
   onOpenChange,
@@ -92,41 +43,27 @@ export default function ProfilePictureManager({
 }: ProfilePictureManagerProps) {
   const { data: session, update } = useSession();
   const router = useRouter();
-  const [view, setView] = useState<"main" | "crop" | "upload">("main");
-  const [imgSrc, setImgSrc] = useState("");
-  const [crop, setCrop] = useState<Crop>();
-  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const imgRef = useRef<HTMLImageElement>(null);
+  const [view, setView] = useState<"main" | "edit">("main");
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const CROP_SIZE_PX = 350;
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      setTimeout(() => {
-        setView("main");
-        setImgSrc("");
-      }, 200);
-    }
-    onOpenChange(isOpen);
-  };
 
-  function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
-    const { width, height } = e.currentTarget;
-    // Create a centered crop with a fixed pixel size
-    const crop = centerCrop(
-      makeAspectCrop({ unit: "px", width: CROP_SIZE_PX }, 1, width, height),
-      width,
-      height
-    );
-    setCrop(crop);
-  }
+  const onCropComplete = useCallback(
+    (croppedArea: Area, croppedAreaPixels: Area) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    []
+  );
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
-      setCrop(undefined);
       const reader = new FileReader();
       reader.addEventListener("load", () => {
-        setImgSrc(reader.result?.toString() || "");
-        setView("crop");
+        setImageSrc(reader.result?.toString() || "");
+        setView("edit");
       });
       reader.readAsDataURL(acceptedFiles[0]);
     }
@@ -137,34 +74,41 @@ export default function ProfilePictureManager({
     multiple: false,
   });
 
-  const handleSave = async () => {
-    if (!completedCrop || !imgRef.current) {
-      toast.error("Crop selection is invalid. Please try again.");
-      return;
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      setTimeout(() => {
+        setView("main");
+        setImageSrc(null);
+        setZoom(1);
+        setRotation(0);
+      }, 200);
     }
+    onOpenChange(isOpen);
+  };
+
+  const handleSave = async () => {
+    if (!croppedAreaPixels || !imageSrc) return;
     setIsLoading(true);
     try {
-      // 1. Get the cropped image data as a File object
       const croppedImageFile = await getCroppedImg(
-        imgRef.current,
-        completedCrop,
-        "new-avatar.png"
+        imageSrc,
+        croppedAreaPixels,
+        rotation
       );
+      if (!croppedImageFile) throw new Error("Could not crop image.");
 
-      // 2. Get temporary auth params from our backend
-      const authResponse = await fetch("/api/imagekit/auth");
-      const authData = await authResponse.json();
-
-      // 3. Prepare and upload the cropped image to ImageKit
+      const authResponse = await fetch("/api/imagekit/auth").then((res) =>
+        res.json()
+      );
       const formData = new FormData();
       formData.append("file", croppedImageFile);
       formData.append(
         "publicKey",
         process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!
       );
-      formData.append("signature", authData.signature);
-      formData.append("expire", authData.expire);
-      formData.append("token", authData.token);
+      formData.append("signature", authResponse.signature);
+      formData.append("expire", authResponse.expire);
+      formData.append("token", authResponse.token);
       formData.append("fileName", croppedImageFile.name);
       formData.append(
         "folder",
@@ -174,29 +118,23 @@ export default function ProfilePictureManager({
       const imageKitResponse = await fetch(
         "https://upload.imagekit.io/api/v1/files/upload",
         { method: "POST", body: formData }
-      );
-      const imageKitData = await imageKitResponse.json();
-      if (!imageKitResponse.ok)
-        throw new Error(imageKitData.message || "Image upload failed.");
+      ).then((res) => res.json());
+      if (!imageKitResponse.fileId)
+        throw new Error(imageKitResponse.message || "Image upload failed.");
 
-      // 4. Update the user/admin record in our database
       const updateUrl =
         role === "Admin"
-          ? "/api/profile/admin/picture"
-          : "/api/profile/user/picture";
-      const updateResponse = await fetch(updateUrl, {
+          ? `/api/profile/admin/picture`
+          : `/api/profile/user/picture`;
+      await fetch(updateUrl, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // Only send the fields we are updating
-          newImageUrl: imageKitData.url,
-          newImageFileId: imageKitData.fileId,
+          newImageUrl: imageKitResponse.url,
+          newImageFileId: imageKitResponse.fileId,
         }),
       });
-      if (!updateResponse.ok)
-        throw new Error("Failed to save new profile picture.");
 
-      // 5. Update the session and refresh the page to show changes instantly
       await update();
       toast.success("Profile picture updated successfully!");
       handleOpenChange(false);
@@ -208,97 +146,146 @@ export default function ProfilePictureManager({
     }
   };
 
+  const handleRemove = async () => {
+    setIsLoading(true);
+    const promise = fetch(
+      role === "Admin"
+        ? "/api/profile/admin/picture"
+        : "/api/profile/user/picture",
+      {
+        method: "DELETE",
+      }
+    ).then(async (res) => {
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to remove picture.");
+      }
+      await update();
+      handleOpenChange(false);
+      router.refresh();
+    });
+
+    toast.promise(promise, {
+      loading: "Removing picture...",
+      success: "Profile picture removed.",
+      error: (err) => err.message,
+    });
+    setIsLoading(false);
+  };
+
   const renderMainView = () => (
     <div className="flex flex-col items-center text-center space-y-4 pt-4">
       <Avatar className="h-40 w-40">
-        <AvatarImage src={session?.user?.image || "/default-avatar.png"} />
+        <AvatarImage
+          src={session?.user?.image || "/default-avatar.png"}
+          alt={session?.user?.name || ""}
+        />
         <AvatarFallback className="text-5xl">
           {session?.user?.name?.charAt(0)}
         </AvatarFallback>
       </Avatar>
       <p className="text-xl font-semibold">{session?.user?.name}</p>
       <div className="flex gap-2 pt-4">
-        <Button onClick={() => setView("upload")}>
+        <Button onClick={() => setView("edit")}>
           <Camera className="mr-2 h-4 w-4" />
           Change
         </Button>
-        <Button variant="outline">
-          <Trash2 className="mr-2 h-4 w-4" />
+        <Button
+          variant="outline"
+          onClick={handleRemove}
+          disabled={!session?.user?.image || isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Trash2 className="mr-2 h-4 w-4" />
+          )}
           Remove
         </Button>
       </div>
     </div>
   );
 
-  const renderCropView = () => (
-    <div>
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => {
-            setImgSrc("");
-            setView("upload");
-          }}
-        >
-          <ArrowLeft />
-        </Button>
-        <h3 className="text-lg font-semibold">Crop your new picture</h3>
-      </div>
-      <div className="flex justify-center bg-muted rounded-lg">
-        {imgSrc && (
-          <ReactCrop
+  const renderEditView = () =>
+    imageSrc ? (
+      <div>
+        <div className="flex items-center gap-4 mb-4">
+          <Button variant="ghost" size="icon" onClick={() => setView("main")}>
+            <ArrowLeft />
+          </Button>
+          <h3 className="text-lg font-semibold">
+            Position and zoom your image
+          </h3>
+        </div>
+        <div className="relative h-64 w-full bg-muted rounded-lg">
+          <Cropper
+            image={imageSrc}
             crop={crop}
-            onChange={(_, percentCrop) => setCrop(percentCrop)}
-            onComplete={(c) => setCompletedCrop(c)}
+            zoom={zoom}
+            rotation={rotation}
             aspect={1}
-            circularCrop
-            // --- THESE PROPS FIX THE CROP SIZE ---
-            minWidth={CROP_SIZE_PX}
-            minHeight={CROP_SIZE_PX}
-            maxWidth={CROP_SIZE_PX}
-            maxHeight={CROP_SIZE_PX}
-          >
-            <img
-              ref={imgRef}
-              alt="Crop me"
-              src={imgSrc}
-              onLoad={onImageLoad}
-              style={{ maxHeight: "70vh" }}
+            cropShape="round"
+            onCropChange={setCrop}
+            onZoomChange={setZoom}
+            onRotationChange={setRotation}
+            onCropComplete={onCropComplete}
+          />
+        </div>
+        <div className="w-full space-y-4 mt-4">
+          <div className="space-y-2">
+            <Label htmlFor="zoom-slider" className="flex items-center">
+              <ZoomIn className="mr-2 h-4 w-4" />
+              Zoom
+            </Label>
+            <Slider
+              id="zoom-slider"
+              min={1}
+              max={3}
+              step={0.1}
+              value={[zoom]}
+              onValueChange={(value) => setZoom(value[0])}
             />
-          </ReactCrop>
-        )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="rotation-slider" className="flex items-center">
+              <RotateCw className="mr-2 h-4 w-4" />
+              Rotate
+            </Label>
+            <Slider
+              id="rotation-slider"
+              min={0}
+              max={360}
+              step={1}
+              value={[rotation]}
+              onValueChange={(value) => setRotation(value[0])}
+            />
+          </div>
+        </div>
+        <div className="flex justify-between mt-6">
+          <Button
+            variant="outline"
+            {...getRootProps({ onClick: (event) => event.preventDefault() })}
+          >
+            <input {...getInputProps()} />
+            Change Image
+          </Button>
+          <Button onClick={handleSave} disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{" "}
+            {isLoading ? "Saving..." : "Save Picture"}
+          </Button>
+        </div>
       </div>
-      <div className="flex justify-end items-center mt-6">
-        <Button onClick={handleSave} disabled={!completedCrop || isLoading}>
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isLoading ? "Saving..." : "Save as profile picture"}
-        </Button>
-      </div>
-    </div>
-  );
-
-  const renderUploadView = () => (
-    <div className="flex flex-col">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => setView("main")}>
-          <ArrowLeft />
-        </Button>
-        <h3 className="text-lg font-semibold">Change profile picture</h3>
-      </div>
+    ) : (
       <div
         {...getRootProps()}
-        className={`flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${isDragActive ? "border-primary bg-primary/10" : "hover:border-primary/50"}`}
+        className={`mt-4 flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${isDragActive ? "border-primary bg-primary/10" : "hover:border-primary/50"}`}
       >
         <input {...getInputProps()} />
         <ImageIcon className="h-16 w-16 text-muted-foreground" />
         <p className="mt-4 text-muted-foreground">Drag & drop an image</p>
-        <p className="text-sm text-muted-foreground">
-          or click to select a file
-        </p>
+        <p className="text-sm text-muted-foreground">or click to select</p>
       </div>
-    </div>
-  );
+    );
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -310,8 +297,7 @@ export default function ProfilePictureManager({
           </DialogDescription>
         </DialogHeader>
         {view === "main" && renderMainView()}
-        {view === "upload" && renderUploadView()}
-        {view === "crop" && renderCropView()}
+        {view === "edit" && renderEditView()}
       </DialogContent>
     </Dialog>
   );
