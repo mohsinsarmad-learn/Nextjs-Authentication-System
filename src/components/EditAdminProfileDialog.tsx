@@ -203,26 +203,6 @@ export default function EditAdminProfileDialog({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="profileImage"
-              render={({ field: { onChange, value, ...rest } }) => (
-                <FormItem>
-                  <FormLabel>New Profile Picture</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      {...rest}
-                      onChange={(e) =>
-                        onChange(e.target.files ? e.target.files[0] : null)
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Saving..." : "Save changes"}
             </Button>
