@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
   Card,
@@ -37,6 +38,7 @@ import ChangeAdminPasswordDialog from "@/components/ChangeAdminPasswordDialog";
 import EditAdminProfileDialog from "@/components/EditAdminProfileDialog";
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const { data: session, status } = useSession();
   const [users, setUsers] = useState<IUser[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
@@ -93,14 +95,23 @@ export default function AdminDashboard() {
   };
 
   const handleUserUpdated = (updatedUser: IUser) => {
-    setUsers((currentUsers) =>
-      currentUsers.map((user) =>
+    setUsers((prev) =>
+      prev.map((user) =>
         user.UserId === updatedUser.UserId ? updatedUser : user
       )
     );
   };
 
-  if (status === "loading" || isLoadingUsers) {
+  const handleNavigateToBulkEdit = () => {
+    if (selectedUserIds.length === 0) {
+      toast.error("Please select at least one user to edit.");
+      return;
+    }
+    const idsQueryParam = selectedUserIds.join(",");
+    router.push(`/dashboard/bulk-edit?ids=${idsQueryParam}`);
+  };
+
+  if (status === "loading") {
     return <div className="p-8">Loading dashboard...</div>;
   }
 
@@ -161,6 +172,13 @@ export default function AdminDashboard() {
                 {selectedUserIds.length} user(s) selected.
               </p>
               <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNavigateToBulkEdit}
+              >
+                <Pencil className="mr-2 h-4 w-4" /> Edit Selected
+              </Button>
+              <Button
                 variant="destructive"
                 size="sm"
                 onClick={handleBulkDelete}
@@ -169,15 +187,17 @@ export default function AdminDashboard() {
               </Button>
             </div>
           )}
-          <div className="border rounded-md">
+          {isLoadingUsers ? (
+            <p>Loading users...</p>
+          ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[50px]">
                     <Checkbox
                       checked={
-                        selectedUserIds.length === users.length &&
-                        users.length > 0
+                        users.length > 0 &&
+                        selectedUserIds.length === users.length
                       }
                       onCheckedChange={(checked) => {
                         setSelectedUserIds(
@@ -238,6 +258,7 @@ export default function AdminDashboard() {
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onSelect={(e) => e.preventDefault()}
+                            className="text-red-600 focus:text-red-600 focus:bg-red-50"
                           >
                             <DeleteUserDialog
                               userId={user.UserId}
@@ -251,17 +272,18 @@ export default function AdminDashboard() {
                 ))}
               </TableBody>
             </Table>
-          </div>
-          {editingUser && (
-            <AdminEditUserDialog
-              user={editingUser}
-              open={!!editingUser}
-              onOpenChange={() => setEditingUser(null)}
-              onUserUpdated={handleUserUpdated}
-            />
           )}
         </CardContent>
       </Card>
+
+      {editingUser && (
+        <AdminEditUserDialog
+          user={editingUser}
+          open={!!editingUser}
+          onOpenChange={() => setEditingUser(null)}
+          onUserUpdated={handleUserUpdated}
+        />
+      )}
     </div>
   );
 }

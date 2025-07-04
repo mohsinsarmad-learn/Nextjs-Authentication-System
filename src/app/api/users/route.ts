@@ -6,28 +6,37 @@ import User from "@/models/User";
 import imagekit from "@/lib/imagekit";
 import { NextResponse } from "next/server";
 
+// src/app/api/users/route.ts
+
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
-  // Protect the route: only admins can access
   if (!session || session.user.role !== "Admin") {
     return NextResponse.json({ message: "Not authorized" }, { status: 401 });
   }
 
   await connectToDatabase();
   try {
-    // Fetch all users and exclude their passwords from the result
-    const users = await User.find({}).select("-password");
+    const { searchParams } = new URL(request.url);
+    const ids = searchParams.get("ids");
+
+    let users;
+    // If specific IDs are provided, fetch only those users
+    if (ids) {
+      const userIds = ids.split(",");
+      users = await User.find({ UserId: { $in: userIds } }).select("-password");
+    } else {
+      // Otherwise, fetch all users
+      users = await User.find({}).select("-password");
+    }
 
     return NextResponse.json(users, { status: 200 });
   } catch (error: any) {
-    console.error("Error fetching users:", error);
     return NextResponse.json(
       { message: "Error fetching users", error: error.message },
       { status: 500 }
     );
   }
 }
-
 export async function DELETE(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "Admin") {
