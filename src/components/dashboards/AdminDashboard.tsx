@@ -23,7 +23,7 @@ import { IUser } from "@/models/User";
 import DeleteUserDialog from "@/components/DeleteUserDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Pencil } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,18 +31,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import AdminEditUserDialog from "@/components/AdminEditUserDialog";
-import EditAdminProfileDialog from "@/components/EditAdminProfileDialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 import ChangeAdminPasswordDialog from "@/components/ChangeAdminPasswordDialog";
-import { Skeleton } from "@/components/ui/skeleton";
+import EditAdminProfileDialog from "@/components/EditAdminProfileDialog";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const [users, setUsers] = useState<IUser[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // State to control the edit dialog for a specific user
   const [editingUser, setEditingUser] = useState<IUser | null>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -64,14 +64,34 @@ export default function AdminDashboard() {
     fetchUsers();
   }, []);
 
-  // Callback to update UI instantly after a user is deleted
   const handleUserDeleted = (deletedUserId: string) => {
-    setUsers((currentUsers) =>
-      currentUsers.filter((user) => user.UserId !== deletedUserId)
-    );
+    setUsers((prev) => prev.filter((user) => user.UserId !== deletedUserId));
+    setSelectedUserIds((prev) => prev.filter((id) => id !== deletedUserId));
   };
 
-  // Callback to update UI instantly after a user is edited
+  const handleBulkDelete = async () => {
+    const promise = fetch("/api/users", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userIds: selectedUserIds }),
+    }).then((res) => {
+      if (!res.ok) throw new Error("Failed to delete selected users.");
+      return res.json();
+    });
+
+    toast.promise(promise, {
+      loading: `Deleting ${selectedUserIds.length} user(s)...`,
+      success: (data) => {
+        setUsers((prev) =>
+          prev.filter((user) => !selectedUserIds.includes(user.UserId))
+        );
+        setSelectedUserIds([]);
+        return data.message;
+      },
+      error: (err) => err.message,
+    });
+  };
+
   const handleUserUpdated = (updatedUser: IUser) => {
     setUsers((currentUsers) =>
       currentUsers.map((user) =>
@@ -80,7 +100,7 @@ export default function AdminDashboard() {
     );
   };
 
-  if (status === "loading") {
+  if (status === "loading" || isLoadingUsers) {
     return <div className="p-8">Loading dashboard...</div>;
   }
 
@@ -135,12 +155,38 @@ export default function AdminDashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoadingUsers ? (
-            <Skeleton className="h-40 w-full" />
-          ) : (
+          {selectedUserIds.length > 0 && (
+            <div className="mb-4 flex items-center gap-2 bg-muted p-2 rounded-lg">
+              <p className="text-sm font-medium">
+                {selectedUserIds.length} user(s) selected.
+              </p>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBulkDelete}
+              >
+                <Trash2 className="mr-2 h-4 w-4" /> Delete Selected
+              </Button>
+            </div>
+          )}
+          <div className="border rounded-md">
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[50px]">
+                    <Checkbox
+                      checked={
+                        selectedUserIds.length === users.length &&
+                        users.length > 0
+                      }
+                      onCheckedChange={(checked) => {
+                        setSelectedUserIds(
+                          checked ? users.map((u) => u.UserId) : []
+                        );
+                      }}
+                      aria-label="Select all rows"
+                    />
+                  </TableHead>
                   <TableHead>User ID</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
@@ -150,7 +196,20 @@ export default function AdminDashboard() {
               </TableHeader>
               <TableBody>
                 {users.map((user) => (
-                  <TableRow key={(user._id as string).toString()}>
+                  <TableRow key={String(user._id)}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedUserIds.includes(user.UserId)}
+                        onCheckedChange={(checked) => {
+                          setSelectedUserIds((prev) =>
+                            checked
+                              ? [...prev, user.UserId]
+                              : prev.filter((id) => id !== user.UserId)
+                          );
+                        }}
+                        aria-label={`Select row for ${user.firstname}`}
+                      />
+                    </TableCell>
                     <TableCell>{user.UserId}</TableCell>
                     <TableCell>
                       {user.firstname} {user.lastname}
@@ -175,13 +234,10 @@ export default function AdminDashboard() {
                           <DropdownMenuItem
                             onSelect={() => setEditingUser(user)}
                           >
-                            <Pencil className="mr-2 h-4 w-4" />
-                            <span>Edit</span>
+                            <Pencil className="mr-2 h-4 w-4" /> Edit
                           </DropdownMenuItem>
-                          {/* The DeleteUserDialog trigger is now wrapped inside a DropdownMenuItem */}
                           <DropdownMenuItem
                             onSelect={(e) => e.preventDefault()}
-                            className="p-0"
                           >
                             <DeleteUserDialog
                               userId={user.UserId}
@@ -195,19 +251,17 @@ export default function AdminDashboard() {
                 ))}
               </TableBody>
             </Table>
+          </div>
+          {editingUser && (
+            <AdminEditUserDialog
+              user={editingUser}
+              open={!!editingUser}
+              onOpenChange={() => setEditingUser(null)}
+              onUserUpdated={handleUserUpdated}
+            />
           )}
         </CardContent>
       </Card>
-
-      {/* The Edit User Dialog is rendered here conditionally */}
-      {editingUser && (
-        <AdminEditUserDialog
-          user={editingUser}
-          open={!!editingUser}
-          onOpenChange={() => setEditingUser(null)}
-          onUserUpdated={handleUserUpdated}
-        />
-      )}
     </div>
   );
 }
