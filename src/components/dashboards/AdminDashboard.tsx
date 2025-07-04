@@ -36,7 +36,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import ChangeAdminPasswordDialog from "@/components/ChangeAdminPasswordDialog";
 import EditAdminProfileDialog from "@/components/EditAdminProfileDialog";
-
+import UpdateProfilePictureDialog from "@/components/UpdateProfilePictureDialog";
 export default function AdminDashboard() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -45,7 +45,7 @@ export default function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<IUser | null>(null);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-
+  const [isPictureDialogOpen, setIsPictureDialogOpen] = useState(false);
   useEffect(() => {
     const fetchUsers = async () => {
       setIsLoadingUsers(true);
@@ -138,13 +138,18 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center space-x-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage
-                src={adminUser?.image || "/default-avatar.png"}
-                alt={adminUser?.name || "Admin"}
-              />
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
+            <div
+              className="cursor-pointer"
+              onClick={() => setIsPictureDialogOpen(true)}
+            >
+              <Avatar className="h-20 w-20">
+                <AvatarImage
+                  src={adminUser?.image || "/default-avatar.png"}
+                  alt={adminUser?.name || "Admin"}
+                />
+                <AvatarFallback>{initials}</AvatarFallback>
+              </Avatar>
+            </div>
             <div className="space-y-1">
               <h2 className="text-2xl font-bold">{adminUser?.name}</h2>
               <p className="text-muted-foreground">{adminUser?.email}</p>
@@ -284,6 +289,10 @@ export default function AdminDashboard() {
           onUserUpdated={handleUserUpdated}
         />
       )}
+      <UpdateProfilePictureDialog
+        open={isPictureDialogOpen}
+        onOpenChange={setIsPictureDialogOpen}
+      />
     </div>
   );
 }
