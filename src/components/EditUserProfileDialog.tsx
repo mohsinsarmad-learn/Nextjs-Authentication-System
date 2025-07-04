@@ -1,4 +1,4 @@
-// src/components/EditProfileDialog.tsx
+// src/components/EditUserProfileDialog.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -7,8 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useSession } from "next-auth/react"; // Import the useSession hook
-
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,26 +28,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { User as UserIcon } from "lucide-react";
 
-interface EditProfileDialogProps {
-  user: { id?: string | null; name?: string | null };
-}
-
 const formSchema = z.object({
   firstname: z.string().min(2, "First name must be at least 2 characters."),
   lastname: z.string().min(2, "Last name must be at least 2 characters."),
   contact: z.string().optional(),
-  profileImage: z.instanceof(File).optional(),
 });
 
-export default function EditProfileDialog({ user }: EditProfileDialogProps) {
+export default function EditUserProfileDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { data: session, update } = useSession();
   const router = useRouter();
-  const { update } = useSession(); // Get the update function from the hook
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { firstname: "", lastname: "", contact: "" },
+    defaultValues: {
+      firstname: "",
+      lastname: "",
+      contact: "",
+    },
   });
 
   useEffect(() => {
@@ -58,8 +55,8 @@ export default function EditProfileDialog({ user }: EditProfileDialogProps) {
         .then((data) => {
           if (data) {
             form.reset({
-              firstname: data.firstname,
-              lastname: data.lastname,
+              firstname: data.firstname || "",
+              lastname: data.lastname || "",
               contact: data.contact || "",
             });
           }
@@ -70,60 +67,20 @@ export default function EditProfileDialog({ user }: EditProfileDialogProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      let newImageUrl: string | null = null;
-      let newImageFileId: string | null = null;
-      if (values.profileImage) {
-        const authResponse = await fetch("/api/imagekit/auth");
-        const authData = await authResponse.json();
-        const formData = new FormData();
-        formData.append("file", values.profileImage);
-        formData.append(
-          "publicKey",
-          process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!
-        );
-        formData.append("signature", authData.signature);
-        formData.append("expire", authData.expire);
-        formData.append("token", authData.token);
-        formData.append("fileName", values.profileImage.name);
-        formData.append("folder", "/userPics/");
-        const imageKitResponse = await fetch(
-          "https://upload.imagekit.io/api/v1/files/upload",
-          { method: "POST", body: formData }
-        );
-        const imageKitData = await imageKitResponse.json();
-        if (!imageKitResponse.ok)
-          throw new Error(imageKitData.message || "Image upload failed.");
-        newImageUrl = imageKitData.url;
-        newImageFileId = imageKitData.fileId;
-      }
-
-      const updatePayload = {
-        firstname: values.firstname,
-        lastname: values.lastname,
-        contact: values.contact,
-        ...(newImageUrl && { newImageUrl }),
-        ...(newImageFileId && { newImageFileId }),
-      };
-
-      const updateResponse = await fetch("/api/profile/user", {
+      const response = await fetch("/api/profile/user", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatePayload),
+        body: JSON.stringify(values),
       });
-
-      if (!updateResponse.ok) {
-        const updateData = await updateResponse.json();
-        throw new Error(updateData.message || "Failed to update profile.");
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to update profile.");
       }
-
-      // Manually trigger a session update to refetch the user's data
       await update();
-
       toast.success("Profile updated successfully.");
       setIsOpen(false);
       router.refresh();
     } catch (error: any) {
-      console.error("Update Profile Error:", error);
       toast.error(error.message);
     } finally {
       setIsLoading(false);
@@ -141,7 +98,7 @@ export default function EditProfileDialog({ user }: EditProfileDialogProps) {
         <DialogHeader>
           <DialogTitle>Edit profile</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when you're done.
+            Make changes to your profile here.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -185,26 +142,6 @@ export default function EditProfileDialog({ user }: EditProfileDialogProps) {
                   <FormLabel>Contact (Optional)</FormLabel>
                   <FormControl>
                     <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="profileImage"
-              render={({ field: { onChange, value, ...rest } }) => (
-                <FormItem>
-                  <FormLabel>New Profile Picture</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      {...rest}
-                      onChange={(e) =>
-                        onChange(e.target.files ? e.target.files[0] : null)
-                      }
-                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

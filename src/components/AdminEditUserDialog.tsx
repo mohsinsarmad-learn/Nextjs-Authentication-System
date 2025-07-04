@@ -50,9 +50,9 @@ export default function AdminEditUserDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstname: user.firstname || "",
-      lastname: user.lastname || "",
-      contact: user.contact || "",
+      firstname: "",
+      lastname: "",
+      contact: "",
       newPassword: "",
     },
   });

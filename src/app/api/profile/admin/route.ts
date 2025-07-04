@@ -3,10 +3,9 @@ import { connectToDatabase } from "@/lib/dbConnect";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth/next";
 import Admin from "@/models/Admin";
-import imagekit from "@/lib/imagekit";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
+export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session || !session.user || session.user.role !== "Admin") {
     return NextResponse.json({ message: "Not authorized" }, { status: 401 });
@@ -33,15 +32,9 @@ export async function PUT(request: Request) {
   if (!adminToUpdate)
     return NextResponse.json({ message: "Admin not found" }, { status: 404 });
 
-  if (newImageFileId && adminToUpdate.profilePicFileId) {
-    await imagekit.deleteFile(adminToUpdate.profilePicFileId);
-  }
-
   adminToUpdate.firstname = firstname;
   adminToUpdate.lastname = lastname;
   adminToUpdate.contact = contact;
-  if (newImageUrl) adminToUpdate.profilepic = newImageUrl;
-  if (newImageFileId) adminToUpdate.profilePicFileId = newImageFileId;
 
   await adminToUpdate.save();
   return NextResponse.json(
