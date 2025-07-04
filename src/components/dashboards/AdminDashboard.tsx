@@ -36,7 +36,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import ChangeAdminPasswordDialog from "@/components/ChangeAdminPasswordDialog";
 import EditAdminProfileDialog from "@/components/EditAdminProfileDialog";
-import UpdateProfilePictureDialog from "@/components/UpdateProfilePictureDialog";
+import ProfilePictureManager from "@/components/ProfilePictureManager";
 export default function AdminDashboard() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -45,7 +45,7 @@ export default function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<IUser | null>(null);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-  const [isPictureDialogOpen, setIsPictureDialogOpen] = useState(false);
+  const [isPictureManagerOpen, setIsPictureManagerOpen] = useState(false);
   useEffect(() => {
     const fetchUsers = async () => {
       setIsLoadingUsers(true);
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
           <div className="flex items-center space-x-4">
             <div
               className="cursor-pointer"
-              onClick={() => setIsPictureDialogOpen(true)}
+              onClick={() => setIsPictureManagerOpen(true)}
             >
               <Avatar className="h-20 w-20">
                 <AvatarImage
@@ -289,9 +289,10 @@ export default function AdminDashboard() {
           onUserUpdated={handleUserUpdated}
         />
       )}
-      <UpdateProfilePictureDialog
-        open={isPictureDialogOpen}
-        onOpenChange={setIsPictureDialogOpen}
+      <ProfilePictureManager
+        open={isPictureManagerOpen}
+        onOpenChange={setIsPictureManagerOpen}
+        role="Admin" // Pass the correct role
       />
     </div>
   );
