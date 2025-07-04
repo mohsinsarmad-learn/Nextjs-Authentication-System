@@ -22,15 +22,27 @@ import { Badge } from "@/components/ui/badge";
 import { IUser } from "@/models/User";
 import DeleteUserDialog from "@/components/DeleteUserDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal, Pencil } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import AdminEditUserDialog from "@/components/AdminEditUserDialog";
 import EditAdminProfileDialog from "@/components/EditAdminProfileDialog";
 import ChangeAdminPasswordDialog from "@/components/ChangeAdminPasswordDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const [users, setUsers] = useState<IUser[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // State to control the edit dialog for a specific user
+  const [editingUser, setEditingUser] = useState<IUser | null>(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -52,9 +64,19 @@ export default function AdminDashboard() {
     fetchUsers();
   }, []);
 
+  // Callback to update UI instantly after a user is deleted
   const handleUserDeleted = (deletedUserId: string) => {
     setUsers((currentUsers) =>
       currentUsers.filter((user) => user.UserId !== deletedUserId)
+    );
+  };
+
+  // Callback to update UI instantly after a user is edited
+  const handleUserUpdated = (updatedUser: IUser) => {
+    setUsers((currentUsers) =>
+      currentUsers.map((user) =>
+        user.UserId === updatedUser.UserId ? updatedUser : user
+      )
     );
   };
 
@@ -104,7 +126,7 @@ export default function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Existing User Management Card */}
+      {/* User Management Card */}
       <Card>
         <CardHeader>
           <CardTitle>User Management</CardTitle>
@@ -114,7 +136,7 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           {isLoadingUsers ? (
-            <p>Loading users...</p>
+            <Skeleton className="h-40 w-full" />
           ) : (
             <Table>
               <TableHeader>
@@ -142,10 +164,32 @@ export default function AdminDashboard() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <DeleteUserDialog
-                        userId={user.UserId}
-                        onUserDeleted={handleUserDeleted}
-                      />
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onSelect={() => setEditingUser(user)}
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            <span>Edit</span>
+                          </DropdownMenuItem>
+                          {/* The DeleteUserDialog trigger is now wrapped inside a DropdownMenuItem */}
+                          <DropdownMenuItem
+                            onSelect={(e) => e.preventDefault()}
+                            className="p-0"
+                          >
+                            <DeleteUserDialog
+                              userId={user.UserId}
+                              onUserDeleted={handleUserDeleted}
+                            />
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -154,6 +198,16 @@ export default function AdminDashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* The Edit User Dialog is rendered here conditionally */}
+      {editingUser && (
+        <AdminEditUserDialog
+          user={editingUser}
+          open={!!editingUser}
+          onOpenChange={() => setEditingUser(null)}
+          onUserUpdated={handleUserUpdated}
+        />
+      )}
     </div>
   );
 }

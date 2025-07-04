@@ -27,8 +27,6 @@ export async function GET(request: Request) {
   }
 }
 
-// src/app/api/users/route.ts
-// ... (keep existing GET function and imports) ...
 import imagekit from "@/lib/imagekit";
 
 export async function DELETE(request: Request) {
