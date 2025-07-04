@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import {
   Card,
   CardContent,
@@ -19,43 +20,91 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { IUser } from "@/models/User";
-import DeleteUserDialog from "@/components/DeleteUserDialog"; // Import the new component
+import DeleteUserDialog from "@/components/DeleteUserDialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import EditAdminProfileDialog from "@/components/EditAdminProfileDialog";
+import ChangeAdminPasswordDialog from "@/components/ChangeAdminPasswordDialog";
 
 export default function AdminDashboard() {
+  const { data: session, status } = useSession();
   const [users, setUsers] = useState<IUser[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      setIsLoading(true);
+      setIsLoadingUsers(true);
       try {
         const response = await fetch("/api/users");
-        if (!response.ok) throw new Error("Failed to fetch users.");
+        if (!response.ok) {
+          throw new Error("Failed to fetch users.");
+        }
         const data = await response.json();
         setUsers(data);
       } catch (err: any) {
         setError(err.message);
       } finally {
-        setIsLoading(false);
+        setIsLoadingUsers(false);
       }
     };
+
     fetchUsers();
   }, []);
 
-  // This function will be passed as a callback to the dialog
-  // to update the UI instantly without a page refresh.
   const handleUserDeleted = (deletedUserId: string) => {
     setUsers((currentUsers) =>
       currentUsers.filter((user) => user.UserId !== deletedUserId)
     );
   };
 
-  if (isLoading) return <div className="p-8">Loading users...</div>;
-  if (error) return <div className="p-8 text-red-500">Error: {error}</div>;
+  if (status === "loading") {
+    return <div className="p-8">Loading dashboard...</div>;
+  }
+
+  if (error) {
+    return <div className="p-8 text-red-500">Error: {error}</div>;
+  }
+
+  const adminUser = session?.user;
+  const initials =
+    adminUser?.name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("") || "?";
 
   return (
-    <div className="p-4 md:p-8">
+    <div className="p-4 md:p-8 space-y-8">
+      {/* Admin's Own Profile Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>My Admin Profile</CardTitle>
+          <CardDescription>
+            View and manage your personal admin information.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center space-x-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage
+                src={adminUser?.image || "/default-avatar.png"}
+                alt={adminUser?.name || "Admin"}
+              />
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+            <div className="space-y-1">
+              <h2 className="text-2xl font-bold">{adminUser?.name}</h2>
+              <p className="text-muted-foreground">{adminUser?.email}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <EditAdminProfileDialog user={adminUser} />
+            <ChangeAdminPasswordDialog />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Existing User Management Card */}
       <Card>
         <CardHeader>
           <CardTitle>User Management</CardTitle>
@@ -64,46 +113,45 @@ export default function AdminDashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Verified</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow
-                  key={
-                    typeof user._id === "string" ? user._id : String(user._id)
-                  }
-                >
-                  <TableCell>{user.UserId}</TableCell>
-                  <TableCell>
-                    {user.firstname} {user.lastname}
-                  </TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={user.isVerified ? "default" : "destructive"}
-                    >
-                      {user.isVerified ? "Yes" : "No"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {/* Add the delete dialog component here */}
-                    <DeleteUserDialog
-                      userId={user.UserId}
-                      onUserDeleted={handleUserDeleted}
-                    />
-                  </TableCell>
+          {isLoadingUsers ? (
+            <p>Loading users...</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Verified</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={(user._id as string).toString()}>
+                    <TableCell>{user.UserId}</TableCell>
+                    <TableCell>
+                      {user.firstname} {user.lastname}
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={user.isVerified ? "default" : "destructive"}
+                      >
+                        {user.isVerified ? "Yes" : "No"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DeleteUserDialog
+                        userId={user.UserId}
+                        onUserDeleted={handleUserDeleted}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
