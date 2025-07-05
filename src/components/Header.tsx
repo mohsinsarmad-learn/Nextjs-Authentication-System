@@ -1,13 +1,64 @@
 // src/components/Header.tsx
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+"use client"; // This is now a client component
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./ThemeToggle";
-import UserNav from "./UserNav"; // Import our new component
+import UserNav from "./UserNav";
 
-export default async function Header() {
-  const session = await getServerSession(authOptions);
+export default function Header() {
+  const pathname = usePathname();
+  const { data: session } = useSession();
+
+  // Helper function to render the correct links when logged out
+  const renderLoggedOutLinks = () => {
+    // Case 1: On User login/register pages
+    if (
+      pathname.startsWith("/login/user") ||
+      pathname.startsWith("/register/user")
+    ) {
+      return (
+        <>
+          <Button variant="ghost" asChild>
+            <Link href="/login/user">Login</Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/register/user">Register</Link>
+          </Button>
+        </>
+      );
+    }
+    // Case 2: On Admin login/register pages
+    if (
+      pathname.startsWith("/login/admin") ||
+      pathname.startsWith("/register/admin")
+    ) {
+      return (
+        <>
+          <Button variant="ghost" asChild>
+            <Link href="/login/admin">Login</Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/register/admin">Register</Link>
+          </Button>
+        </>
+      );
+    }
+    // Case 3: On the Homepage ('/') or any other page
+    return (
+      <>
+        <Button variant="ghost" asChild>
+          <Link href="/login/user">User</Link>
+        </Button>
+        <Button variant="ghost" asChild>
+          <Link href="/login/admin">Admin</Link>
+        </Button>
+      </>
+    );
+  };
 
   return (
     <header className="py-4 px-6 border-b bg-background sticky top-0 z-50">
@@ -16,16 +67,14 @@ export default async function Header() {
           Project D1
         </Link>
         <div className="flex items-center gap-4">
-          <ThemeToggle />
           {session ? (
-            // If a session exists, render the UserNav component
+            // If logged in, show the UserNav dropdown
             <UserNav />
           ) : (
-            // Otherwise, show the sign-in button
-            <Button asChild>
-              <Link href="/login/user">Sign In</Link>
-            </Button>
+            // If logged out, show the context-aware links
+            renderLoggedOutLinks()
           )}
+          <ThemeToggle />
         </div>
       </div>
     </header>
