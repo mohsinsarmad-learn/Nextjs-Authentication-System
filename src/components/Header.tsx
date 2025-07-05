@@ -1,10 +1,10 @@
 // src/components/Header.tsx
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import SignOutButton from "./SignOutButton";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { ThemeToggle } from "./ThemeToggle"; // Import ThemeToggle
+import { ThemeToggle } from "./ThemeToggle";
+import UserNav from "./UserNav"; // Import our new component
 
 export default async function Header() {
   const session = await getServerSession(authOptions);
@@ -16,15 +16,12 @@ export default async function Header() {
           Project D1
         </Link>
         <div className="flex items-center gap-4">
-          <ThemeToggle /> {/* Add the ThemeToggle here */}
+          <ThemeToggle />
           {session ? (
-            <>
-              <span className="text-sm hidden sm:inline">
-                Welcome, {session.user?.name}
-              </span>
-              <SignOutButton />
-            </>
+            // If a session exists, render the UserNav component
+            <UserNav />
           ) : (
+            // Otherwise, show the sign-in button
             <Button asChild>
               <Link href="/login/user">Sign In</Link>
             </Button>
