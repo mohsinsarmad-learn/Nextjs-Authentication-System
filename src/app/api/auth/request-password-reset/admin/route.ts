@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     const { email } = validation.data;
     await connectToDatabase();
     const admin = await Admin.findOne({ email });
-    if (admin) {
+    if (admin && admin.isVerified) {
       const resetToken = crypto.randomBytes(32).toString("hex");
       const passwordResetToken = crypto
         .createHash("sha256")
