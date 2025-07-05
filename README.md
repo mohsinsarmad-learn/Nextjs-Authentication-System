@@ -142,10 +142,10 @@ This project is broken down into distinct phases. We will follow this plan step-
 
 **Objectives:**
 
-- [ ] **Create a Basic Home Page**: Build the main landing page at the root URL.
-- [ ] **Build Conditional Dashboard**: The main `/dashboard/page.tsx` will fetch the user session and act as a router.
-- [ ] **Render Dashboards Conditionally**: Based on `session.user.userType`, render either the `<AdminDashboard />` or `<NonAdminDashboard />` component.
-- [ ] **Develop Initial Dashboard Layouts**: Create the basic UI structure for both dashboard variants.
+- [x] **Create a Basic Home Page**: Build the main landing page at the root URL.
+- [x] **Build Conditional Dashboard**: The main `/dashboard/page.tsx` will fetch the user session and act as a router.
+- [x] **Render Dashboards Conditionally**: Based on `session.user.userType`, render either the `<AdminDashboard />` or `<NonAdminDashboard />` component.
+- [x] **Develop Initial Dashboard Layouts**: Create the basic UI structure for both dashboard variants.
 
 ### **Phase 7: CRUD Operations: Non-Admin** `[Status: ✅ Completed]`
 
