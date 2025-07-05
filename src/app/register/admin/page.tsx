@@ -48,7 +48,6 @@ export default function AdminRegisterPage() {
     setError(null);
     try {
       const response = await fetch("/api/register/admin", {
-        // Points to admin API
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
@@ -56,7 +55,9 @@ export default function AdminRegisterPage() {
       const data = await response.json();
       if (!response.ok)
         throw new Error(data.message || "Something went wrong!");
-      router.push("/login/admin"); // Redirects to admin login
+
+      const itAdminEmail = "the IT Department";
+      router.push(`/verify-request?email=${itAdminEmail}&type=admin`);
     } catch (err: any) {
       setError(err.message);
     } finally {

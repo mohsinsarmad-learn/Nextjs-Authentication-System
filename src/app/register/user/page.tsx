@@ -54,13 +54,11 @@ export default function UserRegisterPage() {
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.message || "Something went wrong!");
       }
 
-      // On success, redirect to the login page
-      router.push("/login/user"); // We will create this page next
+      router.push(`/verify-request?email=${values.email}&type=user`);
     } catch (err: any) {
       setError(err.message);
     } finally {
