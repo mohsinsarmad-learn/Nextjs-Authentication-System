@@ -59,9 +59,9 @@ export async function POST(request: Request) {
           "IT_ADMIN_EMAIL is not defined in environment variables."
         );
       }
-      //TODO:Fix From email address
+      const from = process.env.EMAIL_FROM!;
       await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: from,
         to: itAdminEmail,
         subject: "Action Required: New Admin Account Verification",
         react: AdminVerificationNotice({

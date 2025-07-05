@@ -41,9 +41,9 @@ export async function POST(request: Request) {
       user.passwordResetTokenExpires = passwordResetTokenExpires;
       await user.save();
       const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken}`;
-      //TODO:Fix From email address
+      const from = process.env.EMAIL_FROM!;
       await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: from,
         to: email,
         subject: "Your Password Reset Link",
         react: PasswordResetEmail({ resetLink }),

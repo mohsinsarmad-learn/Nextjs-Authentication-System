@@ -39,9 +39,9 @@ export async function POST(request: Request) {
       await admin.save();
 
       const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password/admin?token=${resetToken}`;
-      //TODO:Fix From email address
+      const from = process.env.EMAIL_FROM!;
       await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: from,
         to: email,
         subject: "Your Admin Account Password Reset Link",
         react: PasswordResetEmail({ resetLink }),
