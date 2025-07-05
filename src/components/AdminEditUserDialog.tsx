@@ -1,4 +1,3 @@
-// src/components/AdminEditUserDialog.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -24,6 +23,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { IUser } from "@/models/User";
+import { adminUpdatesUserSchema } from "@/schemas/frontend/admin/authSchemas"; // Import schema
 
 interface AdminEditUserDialogProps {
   user: IUser;
@@ -32,14 +32,6 @@ interface AdminEditUserDialogProps {
   onUserUpdated: (updatedUser: IUser) => void;
 }
 
-const formSchema = z.object({
-  firstname: z.string().min(2, "First name is required."),
-  lastname: z.string().min(2, "Last name is required."),
-  contact: z.string().optional(),
-  newPassword: z.string().optional(),
-  profileImage: z.instanceof(File).optional(),
-});
-
 export default function AdminEditUserDialog({
   user,
   open,
@@ -47,8 +39,8 @@ export default function AdminEditUserDialog({
   onUserUpdated,
 }: AdminEditUserDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof adminUpdatesUserSchema>>({
+    resolver: zodResolver(adminUpdatesUserSchema),
     defaultValues: {
       firstname: "",
       lastname: "",
@@ -68,7 +60,7 @@ export default function AdminEditUserDialog({
     }
   }, [user, form]);
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof adminUpdatesUserSchema>) {
     setIsLoading(true);
     try {
       let newImageUrl: string | null = null;

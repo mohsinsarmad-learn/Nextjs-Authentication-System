@@ -75,55 +75,12 @@ export default function EditAdminProfileDialog({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    let newImageUrl: string | null = null;
-    let newImageFileId: string | null = null;
-
     try {
-      if (values.profileImage) {
-        const authResponse = await fetch("/api/imagekit/auth");
-        const authData = await authResponse.json();
-
-        const formData = new FormData();
-        formData.append("file", values.profileImage);
-        formData.append(
-          "publicKey",
-          process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!
-        );
-        formData.append("signature", authData.signature);
-        formData.append("expire", authData.expire);
-        formData.append("token", authData.token);
-        formData.append("fileName", values.profileImage.name);
-        formData.append("folder", "/adminPics/"); // Use the adminPics folder
-
-        const imageKitResponse = await fetch(
-          "https://upload.imagekit.io/api/v1/files/upload",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
-        const imageKitData = await imageKitResponse.json();
-        if (!imageKitResponse.ok) {
-          throw new Error(imageKitData.message || "Image upload failed.");
-        }
-        newImageUrl = imageKitData.url;
-        newImageFileId = imageKitData.fileId;
-      }
-
-      const updatePayload = {
-        firstname: values.firstname,
-        lastname: values.lastname,
-        contact: values.contact,
-        ...(newImageUrl && { newImageUrl }),
-        ...(newImageFileId && { newImageFileId }),
-      };
-
       const updateResponse = await fetch("/api/profile/admin", {
         // Submit to the admin endpoint
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatePayload),
+        body: JSON.stringify(values),
       });
 
       if (!updateResponse.ok) {

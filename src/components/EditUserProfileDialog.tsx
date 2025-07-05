@@ -1,4 +1,3 @@
-// src/components/EditUserProfileDialog.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -27,20 +26,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { User as UserIcon } from "lucide-react";
-
-const formSchema = z.object({
-  firstname: z.string().min(2, "First name must be at least 2 characters."),
-  lastname: z.string().min(2, "Last name must be at least 2 characters."),
-  contact: z.string().optional(),
-});
+import { editUserProfileSchema } from "@/schemas/frontend/user/authSchemas";
 
 export default function EditUserProfileDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { data: session, update } = useSession();
   const router = useRouter();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof editUserProfileSchema>>({
+    resolver: zodResolver(editUserProfileSchema),
     defaultValues: {
       firstname: "",
       lastname: "",
@@ -64,7 +58,7 @@ export default function EditUserProfileDialog() {
     }
   }, [isOpen, form]);
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof editUserProfileSchema>) {
     setIsLoading(true);
     try {
       const response = await fetch("/api/profile/user", {

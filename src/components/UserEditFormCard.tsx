@@ -1,3 +1,4 @@
+// src/components/UserEditFormCard.tsx
 "use client";
 
 import { IUser } from "@/models/User";
@@ -15,15 +16,24 @@ import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 interface UserEditFormCardProps {
   user: IUser;
   onDataChange: (userId: string, field: string, value: string | File) => void;
+  // Add a prop to accept validation errors for this specific user
+  errors?: Record<string, string[] | undefined>;
 }
 
 export default function UserEditFormCard({
   user,
   onDataChange,
+  errors = {},
 }: UserEditFormCardProps) {
   const initials = user.firstname?.charAt(0) + user.lastname?.charAt(0) || "?";
 
-  // A handler to manage changes for all inputs
+  const getAvatarSrc = () => {
+    if (user.profilepic instanceof File) {
+      return URL.createObjectURL(user.profilepic);
+    }
+    return user.profilepic as string;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, files } = e.target;
     if (name === "profilepic" && files) {
@@ -33,11 +43,19 @@ export default function UserEditFormCard({
     }
   };
 
+  // Helper to display error messages
+  const ErrorMessage = ({ field }: { field: string }) =>
+    errors[field] ? (
+      <p className="text-xs text-destructive mt-1">{errors[field]?.[0]}</p>
+    ) : null;
+
   return (
-    <Card>
+    <Card
+      className={Object.keys(errors).length > 0 ? "border-destructive" : ""}
+    >
       <CardHeader className="flex flex-row items-center gap-4 space-y-0">
         <Avatar className="h-16 w-16">
-          <AvatarImage src={user.profilepic as string} />
+          <AvatarImage src={getAvatarSrc()} />
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
         <div>
@@ -57,6 +75,7 @@ export default function UserEditFormCard({
               value={user.firstname}
               onChange={handleChange}
             />
+            <ErrorMessage field="firstname" />
           </div>
           <div>
             <Label htmlFor={`lastname-${user.UserId}`}>Last Name</Label>
@@ -66,6 +85,7 @@ export default function UserEditFormCard({
               value={user.lastname}
               onChange={handleChange}
             />
+            <ErrorMessage field="lastname" />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -77,6 +97,7 @@ export default function UserEditFormCard({
               value={user.contact || ""}
               onChange={handleChange}
             />
+            <ErrorMessage field="contact" />
           </div>
           <div>
             <Label htmlFor={`newPassword-${user.UserId}`}>
@@ -90,6 +111,7 @@ export default function UserEditFormCard({
               autoComplete="new-password"
               onChange={handleChange}
             />
+            <ErrorMessage field="newPassword" />
           </div>
         </div>
         <div>

@@ -26,26 +26,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { KeyRound } from "lucide-react";
-
-const formSchema = z
-  .object({
-    currentPassword: z.string().min(1, "Current password is required."),
-    newPassword: z
-      .string()
-      .min(6, "New password must be at least 6 characters."),
-    confirmNewPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmNewPassword, {
-    message: "New passwords do not match.",
-    path: ["confirmNewPassword"],
-  });
+import { adminchangePasswordSchema } from "@/schemas/frontend/admin/authSchemas";
 
 export default function ChangePasswordDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof adminchangePasswordSchema>>({
+    resolver: zodResolver(adminchangePasswordSchema),
     defaultValues: {
       currentPassword: "",
       newPassword: "",
@@ -53,7 +40,7 @@ export default function ChangePasswordDialog() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof adminchangePasswordSchema>) {
     setIsLoading(true);
     try {
       const response = await fetch("/api/profile/admin/change-password", {
