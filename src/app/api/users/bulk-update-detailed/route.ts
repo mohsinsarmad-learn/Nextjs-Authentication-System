@@ -1,10 +1,11 @@
-// src/app/api/users/bulk-update-detailed/route.ts
 import { connectToDatabase } from "@/lib/dbConnect";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth/next";
 import User from "@/models/User";
 import imagekit from "@/lib/imagekit";
 import { NextResponse } from "next/server";
+import { detailedBulkUpdateSchema } from "@/schemas/backend/admin";
+import z from "zod";
 
 export async function PUT(request: Request) {
   const session = await getServerSession(authOptions);
@@ -15,13 +16,19 @@ export async function PUT(request: Request) {
   await connectToDatabase();
 
   try {
-    const updates = await request.json(); // Expecting an array of update objects
-    if (!Array.isArray(updates) || updates.length === 0) {
+    const body = await request.json();
+
+    const validation = detailedBulkUpdateSchema.safeParse(body);
+    if (!validation.success) {
       return NextResponse.json(
-        { message: "No update data provided." },
+        {
+          message: "Invalid input data",
+          errors: validation.error.flatten().fieldErrors,
+        },
         { status: 400 }
       );
     }
+    const updates = validation.data;
 
     const updatePromises = updates.map(async (update) => {
       const {
@@ -33,23 +40,19 @@ export async function PUT(request: Request) {
         newImageUrl,
         newImageFileId,
       } = update;
-
       const userToUpdate = await User.findOne({ UserId: userId });
-      if (!userToUpdate) return; // Skip if user not found
+      if (!userToUpdate) return;
 
-      // Handle image update
       if (newImageFileId && userToUpdate.profilePicFileId) {
         await imagekit.deleteFile(userToUpdate.profilePicFileId);
       }
       if (newImageUrl) userToUpdate.profilepic = newImageUrl;
       if (newImageFileId) userToUpdate.profilePicFileId = newImageFileId;
 
-      // Handle password update
       if (newPassword && newPassword.length > 0) {
         userToUpdate.password = newPassword;
       }
 
-      // Update other fields
       userToUpdate.firstname = firstname;
       userToUpdate.lastname = lastname;
       userToUpdate.contact = contact;
@@ -65,6 +68,13 @@ export async function PUT(request: Request) {
     );
   } catch (error: any) {
     console.error("Detailed Bulk Update Error:", error);
+    if (error instanceof z.ZodError) {
+      // This case should be caught by safeParse, but as a fallback
+      return NextResponse.json(
+        { message: "Validation error", errors: error.errors },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
       { message: "Error during bulk update", error: error.message },
       { status: 500 }

@@ -1,13 +1,11 @@
-// src/app/api/users/route.ts
 import { connectToDatabase } from "@/lib/dbConnect";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth/next";
 import User from "@/models/User";
 import imagekit from "@/lib/imagekit";
 import { NextResponse } from "next/server";
-
-// src/app/api/users/route.ts
-
+import { bulkActionSchema } from "@/schemas/backend/user";
+import z from "zod";
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "Admin") {
@@ -43,11 +41,10 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ message: "Not authorized" }, { status: 401 });
   }
 
-  await connectToDatabase();
-
   try {
     const url = new URL(request.url);
     const singleUserId = url.searchParams.get("id");
+    await connectToDatabase();
 
     // --- Case 1: Handle Single User Deletion ---
     if (singleUserId) {
@@ -73,13 +70,19 @@ export async function DELETE(request: Request) {
     }
 
     // --- Case 2: Handle Bulk User Deletion ---
-    const { userIds } = await request.json();
-    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+    const body = await request.json();
+    const validation = bulkActionSchema.safeParse(body);
+
+    if (!validation.success) {
       return NextResponse.json(
-        { message: "User IDs are required for bulk deletion." },
+        {
+          message: "Invalid input",
+          errors: validation.error.flatten().fieldErrors,
+        },
         { status: 400 }
       );
     }
+    const { userIds } = validation.data;
 
     const usersToDelete = await User.find({ UserId: { $in: userIds } });
     const fileIdsToDelete = usersToDelete
@@ -98,10 +101,10 @@ export async function DELETE(request: Request) {
     );
   } catch (error: any) {
     console.error("Error deleting users:", error);
-    // Check for JSON parsing errors specifically
-    if (error instanceof SyntaxError) {
+    if (error instanceof z.ZodError) {
+      // This case should be caught by safeParse, but as a fallback
       return NextResponse.json(
-        { message: "Invalid request body for bulk delete." },
+        { message: "Validation error", errors: error.errors },
         { status: 400 }
       );
     }
