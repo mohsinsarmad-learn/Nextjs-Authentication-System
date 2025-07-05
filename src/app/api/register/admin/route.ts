@@ -63,10 +63,11 @@ export async function POST(request: Request) {
       await resend.emails.send({
         from: from,
         to: itAdminEmail,
-        subject: "Action Required: New Admin Account Verification",
+        subject: `Action Required: New Admin Account needs approval`,
         react: AdminVerificationNotice({
           verificationLink,
           newAdminEmail: email,
+          newAdminName: `${firstname} ${lastname}`, // Add this line
         }),
       });
     } catch (emailError) {
