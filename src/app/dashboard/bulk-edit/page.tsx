@@ -3,15 +3,14 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { IUser } from "@/models/User";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import UserEditFormCard from "@/components/UserEditFormCard";
 import { toast } from "sonner";
 import { adminEditsUserFrontendSchema } from "@/schemas/frontend/admin/authSchemas";
+import { ClientUser } from "@/types";
 
-// Define a type for our validation error state object
 type ValidationErrors = Record<string, Record<string, string[] | undefined>>;
 
 function BulkEditPageContent() {
@@ -19,7 +18,7 @@ function BulkEditPageContent() {
   const router = useRouter();
   const ids = searchParams.get("ids");
 
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [users, setUsers] = useState<ClientUser[]>([]);
   const [isFetching, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,22 +54,17 @@ function BulkEditPageContent() {
     value: string | File
   ) => {
     setUsers((currentUsers) =>
-      currentUsers.map((user) => {
-        if (user.UserId === userId) {
-          // Mutate the user object directly to preserve Mongoose document methods
-          (user as any)[field] = value;
-        }
-        return user;
-      })
+      currentUsers.map((user) =>
+        user.UserId === userId ? { ...user, [field]: value } : user
+      )
     );
   };
 
   const handleSaveAll = async () => {
-    setValidationErrors({}); // Clear old errors
+    setValidationErrors({});
     let hasErrors = false;
     const newErrors: ValidationErrors = {};
 
-    // Step 1: Validate all user forms on the client-side
     for (const user of users) {
       const result = adminEditsUserFrontendSchema.safeParse(user);
       if (!result.success) {
@@ -78,16 +72,14 @@ function BulkEditPageContent() {
         newErrors[user.UserId] = result.error.flatten().fieldErrors;
       }
     }
-
     setValidationErrors(newErrors);
     if (hasErrors) {
       toast.error("Please fix the validation errors before saving.");
       return;
     }
 
-    // Step 2: If validation passes, proceed with saving
     setIsSaving(true);
-    toast.info("Validation passed. Starting bulk update process...");
+    toast.info("Starting bulk update process...");
 
     try {
       const imageKitAuthParams = await fetch("/api/imagekit/auth").then((res) =>
@@ -107,6 +99,7 @@ function BulkEditPageContent() {
           formData.append("token", imageKitAuthParams.token);
           formData.append("fileName", user.profilepic.name);
           formData.append("folder", "/userPics/");
+
           const response = await fetch(
             "https://upload.imagekit.io/api/v1/files/upload",
             { method: "POST", body: formData }
@@ -114,6 +107,7 @@ function BulkEditPageContent() {
           const result = await response.json();
           if (!response.ok)
             throw new Error(`Image upload failed for ${user.email}`);
+
           return {
             userId: user.UserId,
             newImageUrl: result.url,
@@ -134,7 +128,7 @@ function BulkEditPageContent() {
           firstname: user.firstname,
           lastname: user.lastname,
           contact: user.contact,
-          newPassword: (user as any).newPassword || undefined,
+          newPassword: user.newPassword || undefined,
           newImageUrl: uploadedImageData?.newImageUrl,
           newImageFileId: uploadedImageData?.newImageFileId,
         };
@@ -184,7 +178,6 @@ function BulkEditPageContent() {
           </Button>
         </div>
       </div>
-
       <div className="space-y-4">
         {users.map((user) => (
           <UserEditFormCard

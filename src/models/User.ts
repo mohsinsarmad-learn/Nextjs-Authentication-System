@@ -10,8 +10,8 @@ export interface IUser extends Document {
   contact?: string;
   createdAt: Date;
   updatedAt: Date;
-  profilepic: String;
-  userType: String;
+  profilepic: string;
+  userType: string;
   comparePassword: (candidatePassword: string) => Promise<boolean>;
   isVerified: boolean;
   verificationToken?: string;

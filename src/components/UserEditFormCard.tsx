@@ -12,14 +12,12 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-
+import { ClientUser } from "@/types";
 interface UserEditFormCardProps {
-  user: IUser;
+  user: ClientUser; // Use the simple ClientUser type
   onDataChange: (userId: string, field: string, value: string | File) => void;
-  // Add a prop to accept validation errors for this specific user
   errors?: Record<string, string[] | undefined>;
 }
-
 export default function UserEditFormCard({
   user,
   onDataChange,

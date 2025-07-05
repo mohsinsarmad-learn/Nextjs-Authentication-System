@@ -118,7 +118,7 @@ function UserLoginForm() {
             href="/register/user"
             className="text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
           >
-            Don't have an account? Sign Up
+            Don&apos;t have an account? Sign Up
           </Link>
           <Link
             href="/forgot-password"

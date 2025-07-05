@@ -47,8 +47,8 @@ export const VerificationEmail = ({
             <Heading style={h1}>Confirm Your Email Address</Heading>
             <Text style={text}>Hi {username},</Text>
             <Text style={text}>
-              Thanks for signing up for Project D1. We're excited to have you on
-              board. Please click the button below to complete your
+              Thanks for signing up for Project D1. We&apos;re excited to have
+              you on board. Please click the button below to complete your
               registration.
             </Text>
             <Section style={buttonContainer}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Card,
@@ -12,11 +12,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
-  const type = searchParams.get("type"); // Get the 'type' parameter
+  const type = searchParams.get("type");
 
   const [status, setStatus] = useState<"verifying" | "success" | "error">(
     "verifying"
@@ -30,15 +30,12 @@ export default function VerifyEmailPage() {
         setMessage("Verification token not found.");
         return;
       }
-
       try {
         const response = await fetch(`/api/verify-token?token=${token}`);
         const data = await response.json();
-
         if (!response.ok) {
           throw new Error(data.message || "Verification failed.");
         }
-
         setStatus("success");
         setMessage(data.message || "Account verified successfully!");
       } catch (error: any) {
@@ -46,12 +43,10 @@ export default function VerifyEmailPage() {
         setMessage(error.message || "An error occurred during verification.");
       }
     };
-
     verifyToken();
   }, [token]);
 
   const handleProceedToLogin = () => {
-    // Route to the correct login page based on the type
     const loginPath = type === "admin" ? "/login/admin" : "/login/user";
     router.push(loginPath);
   };
@@ -70,25 +65,32 @@ export default function VerifyEmailPage() {
   };
 
   return (
+    <Card className="w-full max-w-md text-center">
+      <CardHeader>
+        <CardTitle>Email Verification</CardTitle>
+        <CardDescription>
+          Please wait while we verify your account.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex justify-center">{renderIcon()}</div>
+        <p className="text-lg font-medium">{message}</p>
+        {status !== "verifying" && (
+          <Button onClick={handleProceedToLogin} className="w-full">
+            Proceed to {type === "admin" ? "Admin" : "User"} Login
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
     <div className="flex items-center justify-center min-h-screen bg-background">
-      <Card className="w-full max-w-md text-center">
-        <CardHeader>
-          <CardTitle>Email Verification</CardTitle>
-          <CardDescription>
-            Please wait while we process your verification request.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex justify-center">{renderIcon()}</div>
-          <p className="text-lg font-medium">{message}</p>
-          {status !== "verifying" && (
-            <Button onClick={handleProceedToLogin} className="w-full">
-              {/* Dynamic button text */}
-              Proceed to {type === "admin" ? "Admin" : "User"} Login
-            </Button>
-          )}
-        </CardContent>
-      </Card>
+      <Suspense fallback={<div className="text-white">Loading...</div>}>
+        <VerifyEmailContent />
+      </Suspense>
     </div>
   );
 }

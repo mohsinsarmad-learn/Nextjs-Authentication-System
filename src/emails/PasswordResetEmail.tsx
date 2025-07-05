@@ -57,9 +57,9 @@ export const PasswordResetEmail = ({
               </Button>
             </Section>
             <Text style={text}>
-              If you don't want to change your password or didn't request this,
-              you can ignore and delete this message. This link is valid for 24
-              hours.
+              If you don&apos;t want to change your password or didn&apos;t
+              request this, you can ignore and delete this message. This link is
+              valid for 24 hours.
             </Text>
             <Hr style={hr} />
             <Section style={{ textAlign: "center" }}>

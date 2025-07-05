@@ -11,7 +11,10 @@ interface Params {
   userId: string;
 }
 
-export async function PUT(request: Request, { params }: { params: Params }) {
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<Params> }
+) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "Admin") {
     return NextResponse.json({ message: "Not authorized" }, { status: 401 });
