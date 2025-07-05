@@ -48,17 +48,17 @@ We will strictly adhere to the `Northern Lights` theme installed via `tweakcn.co
 
 This project is broken down into distinct phases. We will follow this plan step-by-step.
 
-| Phase | Title                                 | Status           |
-| :---: | :------------------------------------ | :--------------- |
-|   0   | Project Initialization                | ✅ `Completed`   |
-|   1   | Foundation, Theming & Animation       | ✅ `Completed`   |
-|   2   | Database & Auth.js Integration        | ✅ `Completed`   |
-|   3   | Core Authentication UI & Logic        | ✅ `Completed`   |
-|   4   | Email Verification System             | ✅ `Completed`   |
-|   5   | Session Management & Protected Routes | ✅ `Completed`   |
-|   6   | Role-Based Dashboards                 | ✅ `Completed`   |
-|   7   | CRUD Operations: Non-Admin            | ✅ `Completed`   |
-|   8   | CRUD Operations: Admin                | 🟡 `In progress` |
+| Phase | Title                                 | Status         |
+| :---: | :------------------------------------ | :------------- |
+|   0   | Project Initialization                | ✅ `Completed` |
+|   1   | Foundation, Theming & Animation       | ✅ `Completed` |
+|   2   | Database & Auth.js Integration        | ✅ `Completed` |
+|   3   | Core Authentication UI & Logic        | ✅ `Completed` |
+|   4   | Email Verification System             | ✅ `Completed` |
+|   5   | Session Management & Protected Routes | ✅ `Completed` |
+|   6   | Role-Based Dashboards                 | ✅ `Completed` |
+|   7   | CRUD Operations: Non-Admin            | ✅ `Completed` |
+|   8   | CRUD Operations: Admin                | ✅ `Completed` |
 
 ---
 
@@ -153,20 +153,20 @@ This project is broken down into distinct phases. We will follow this plan step-
 
 **Objectives:**
 
-- [ ] **View Profile**: On the Non-Admin dashboard, display all of the logged-in user's data, including their profile photo from ImageKit.
-- [ ] **Edit Profile**: Implement a form (e.g., in a `Dialog` or `Sheet`) that allows users to update their name and other details.
-- [ ] **Change Profile Photo**: Implement the functionality for a user to upload and change their profile photo **using ImageKit**.
-- [ ] **Secure Password Reset**: Build the "forgot/change password" flow that sends a secure, one-day valid token via email to authorize a password change.
+- [x] **View Profile**: On the Non-Admin dashboard, display all of the logged-in user's data, including their profile photo from ImageKit.
+- [x] **Edit Profile**: Implement a form (e.g., in a `Dialog` or `Sheet`) that allows users to update their name and other details.
+- [x] **Change Profile Photo**: Implement the functionality for a user to upload and change their profile photo **using ImageKit**.
+- [x] **Secure Password Reset**: Build the "forgot/change password" flow that sends a secure, one-day valid token via email to authorize a password change.
 
-### **Phase 8: CRUD Operations: Admin** `[Status: 🟡 In Progress]`
+### **Phase 8: CRUD Operations: Admin** `[Status: ✅ Completed]`
 
 > **Goal**: Provide administrators with the necessary tools to manage the application's user base.
 
 **Objectives:**
 
-- [ ] **View All Users API**: Create an API endpoint that securely fetches all registered users from the database.
-- [ ] **Display Users in Table**: On the Admin dashboard, use the `shadcn/ui` `Table` component to display all users.
-- [ ] **Implement User Deletion**: Add functionality (e.g., a button on each row) for the admin to delete any registered user. The action should trigger a `DELETE` request to a secure API endpoint.
+- [x] **View All Users API**: Create an API endpoint that securely fetches all registered users from the database.
+- [x] **Display Users in Table**: On the Admin dashboard, use the `shadcn/ui` `Table` component to display all users.
+- [x] **Implement User Deletion**: Add functionality (e.g., a button on each row) for the admin to delete any registered user. The action should trigger a `DELETE` request to a secure API endpoint.
 
 ---
 
