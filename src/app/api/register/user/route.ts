@@ -51,9 +51,9 @@ export async function POST(request: Request) {
 
     try {
       const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}&type=user`;
-      //TODO:Fix From email address
+      const from = process.env.EMAIL_FROM!;
       await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: from,
         to: email,
         subject: "Verify Your Email Address",
         react: VerificationEmail({ verificationLink }),

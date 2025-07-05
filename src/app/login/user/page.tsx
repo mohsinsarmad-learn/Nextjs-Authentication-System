@@ -35,8 +35,14 @@ function UserLoginForm() {
 
   useEffect(() => {
     const authError = searchParams.get("error");
-    if (authError === "CredentialsSignin") {
-      setError("Invalid email or password. Please try again.");
+    if (authError) {
+      // Handle the generic "Invalid credentials" error from NextAuth
+      if (authError === "CredentialsSignin") {
+        setError("Invalid email or password. Please try again.");
+      } else {
+        // Display any other custom error message directly from the URL
+        setError(authError);
+      }
     }
   }, [searchParams]);
 
@@ -96,7 +102,9 @@ function UserLoginForm() {
               )}
             />
             {error && (
-              <p className="text-sm font-medium text-destructive">{error}</p>
+              <p className="text-sm font-medium text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </p>
             )}
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing In..." : "Sign In"}
