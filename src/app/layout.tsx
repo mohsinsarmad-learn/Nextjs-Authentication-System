@@ -1,10 +1,9 @@
-// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PageTransition } from "@/components/PageTransition";
-import Header from "@/components/Header"; // Import the new Header
+import Header from "@/components/Header";
 import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/components/NextAuthProvider";
 const inter = Inter({ subsets: ["latin"] });
@@ -29,7 +28,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Header /> {/* Use the new dynamic Header */}
+            <Header />
             <main>
               <PageTransition>{children}</PageTransition>
             </main>

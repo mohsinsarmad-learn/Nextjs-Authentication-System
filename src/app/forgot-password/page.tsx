@@ -1,4 +1,3 @@
-// src/app/forgot-password/page.tsx
 "use client";
 
 import { useForm } from "react-hook-form";

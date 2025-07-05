@@ -9,6 +9,10 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import UserEditFormCard from "@/components/UserEditFormCard";
 import { toast } from "sonner";
+import { adminEditsUserFrontendSchema } from "@/schemas/frontend/admin/authSchemas";
+
+// Define a type for our validation error state object
+type ValidationErrors = Record<string, Record<string, string[] | undefined>>;
 
 function BulkEditPageContent() {
   const searchParams = useSearchParams();
@@ -19,6 +23,9 @@ function BulkEditPageContent() {
   const [isFetching, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {}
+  );
 
   useEffect(() => {
     if (!ids) {
@@ -50,13 +57,8 @@ function BulkEditPageContent() {
     setUsers((currentUsers) =>
       currentUsers.map((user) => {
         if (user.UserId === userId) {
-          // Use Object.assign to preserve prototype chain
-          const updatedUser = Object.assign(
-            Object.create(Object.getPrototypeOf(user)),
-            user
-          );
-          (updatedUser as any)[field] = value;
-          return updatedUser;
+          // Mutate the user object directly to preserve Mongoose document methods
+          (user as any)[field] = value;
         }
         return user;
       })
@@ -64,17 +66,35 @@ function BulkEditPageContent() {
   };
 
   const handleSaveAll = async () => {
+    setValidationErrors({}); // Clear old errors
+    let hasErrors = false;
+    const newErrors: ValidationErrors = {};
+
+    // Step 1: Validate all user forms on the client-side
+    for (const user of users) {
+      const result = adminEditsUserFrontendSchema.safeParse(user);
+      if (!result.success) {
+        hasErrors = true;
+        newErrors[user.UserId] = result.error.flatten().fieldErrors;
+      }
+    }
+
+    setValidationErrors(newErrors);
+    if (hasErrors) {
+      toast.error("Please fix the validation errors before saving.");
+      return;
+    }
+
+    // Step 2: If validation passes, proceed with saving
     setIsSaving(true);
-    toast.info("Starting bulk update process...");
+    toast.info("Validation passed. Starting bulk update process...");
 
     try {
-      // --- Step 1: Handle all image uploads concurrently ---
       const imageKitAuthParams = await fetch("/api/imagekit/auth").then((res) =>
         res.json()
       );
 
       const uploadPromises = users.map(async (user) => {
-        // The profilepic will be a File object if a new one was selected
         if (user.profilepic instanceof File) {
           const formData = new FormData();
           formData.append("file", user.profilepic);
@@ -87,32 +107,24 @@ function BulkEditPageContent() {
           formData.append("token", imageKitAuthParams.token);
           formData.append("fileName", user.profilepic.name);
           formData.append("folder", "/userPics/");
-
           const response = await fetch(
             "https://upload.imagekit.io/api/v1/files/upload",
-            {
-              method: "POST",
-              body: formData,
-            }
+            { method: "POST", body: formData }
           );
-
           const result = await response.json();
           if (!response.ok)
             throw new Error(`Image upload failed for ${user.email}`);
-
-          // Return the new image data along with the user ID
           return {
             userId: user.UserId,
             newImageUrl: result.url,
             newImageFileId: result.fileId,
           };
         }
-        return null; // Return null if no new image for this user
+        return null;
       });
 
       const uploadResults = await Promise.all(uploadPromises);
 
-      // --- Step 2: Prepare the final data payload for all users ---
       const finalUpdatePayload = users.map((user) => {
         const uploadedImageData = uploadResults.find(
           (res) => res?.userId === user.UserId
@@ -128,7 +140,6 @@ function BulkEditPageContent() {
         };
       });
 
-      // --- Step 3: Send the entire payload to the backend ---
       const response = await fetch("/api/users/bulk-update-detailed", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -150,7 +161,7 @@ function BulkEditPageContent() {
   };
 
   if (isFetching) return <div className="p-8">Loading user data...</div>;
-  if (error) return <div className="p-8">Error: {error}</div>;
+  if (error) return <div className="p-8 text-destructive">Error: {error}</div>;
 
   return (
     <div className="p-4 md:p-8">
@@ -180,6 +191,7 @@ function BulkEditPageContent() {
             key={user.UserId}
             user={user}
             onDataChange={handleDataChange}
+            errors={validationErrors[user.UserId]}
           />
         ))}
       </div>
