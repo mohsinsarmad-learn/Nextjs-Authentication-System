@@ -18,7 +18,9 @@ export default function Header() {
     // Case 1: On User login/register pages
     if (
       pathname.startsWith("/login/user") ||
-      pathname.startsWith("/register/user")
+      pathname.startsWith("/register/user") ||
+      pathname.startsWith("/forgot-password") ||
+      pathname.startsWith("/reset-password")
     ) {
       return (
         <>
@@ -34,7 +36,9 @@ export default function Header() {
     // Case 2: On Admin login/register pages
     if (
       pathname.startsWith("/login/admin") ||
-      pathname.startsWith("/register/admin")
+      pathname.startsWith("/register/admin") ||
+      pathname.startsWith("/forgot-password/admin") ||
+      pathname.startsWith("/reset-password/admin")
     ) {
       return (
         <>
