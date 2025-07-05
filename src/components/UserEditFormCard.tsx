@@ -1,4 +1,3 @@
-// src/components/UserEditFormCard.tsx
 "use client";
 
 import { IUser } from "@/models/User";
@@ -27,7 +26,7 @@ export default function UserEditFormCard({
   // A handler to manage changes for all inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, files } = e.target;
-    if (name === "profileImage" && files) {
+    if (name === "profilepic" && files) {
       onDataChange(user.UserId, name, files[0]);
     } else {
       onDataChange(user.UserId, name, value);
@@ -94,12 +93,12 @@ export default function UserEditFormCard({
           </div>
         </div>
         <div>
-          <Label htmlFor={`profileImage-${user.UserId}`}>
+          <Label htmlFor={`profilepic-${user.UserId}`}>
             New Profile Picture
           </Label>
           <Input
-            id={`profileImage-${user.UserId}`}
-            name="profileImage"
+            id={`profilepic-${user.UserId}`}
+            name="profilepic"
             type="file"
             accept="image/*"
             onChange={handleChange}

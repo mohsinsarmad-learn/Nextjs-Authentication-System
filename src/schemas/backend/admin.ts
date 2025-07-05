@@ -20,14 +20,14 @@ export const adminUpdatesUserSchema = z.object({
   lastname: z.string().min(2, "Last name is required."),
   contact: z.string().optional(),
   newPassword: z.string().min(6).optional().or(z.literal("")),
-  // Image fields are optional
+  // THE FIX: Add the optional image fields
   newImageUrl: z.string().url().optional(),
   newImageFileId: z.string().min(1).optional(),
 });
 
 export const detailedBulkUpdateSchema = z.array(
   adminUpdatesUserSchema.extend({
-    userId: z.string().min(1), // Each object in the array must have a userId
+    userId: z.string().min(1),
   })
 );
 // We can reuse the user schema for these as the shape is identical

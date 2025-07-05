@@ -18,7 +18,7 @@ export async function PUT(request: Request, { params }: { params: Params }) {
   }
 
   try {
-    const { userId } = params;
+    const { userId } = await params;
     const body = await request.json();
 
     const validation = adminUpdatesUserSchema.safeParse(body);
