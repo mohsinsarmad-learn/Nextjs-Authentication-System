@@ -18,11 +18,13 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const formSchema = z
   .object({
@@ -177,6 +179,14 @@ export default function AdminRegisterPage() {
             </form>
           </Form>
         </CardContent>
+        <CardFooter className="justify-center">
+          <Link
+            href="/login/admin"
+            className="text-sm text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+          >
+            Already have an admin account? Sign In
+          </Link>
+        </CardFooter>
       </Card>
     </div>
   );

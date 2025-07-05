@@ -20,10 +20,12 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 
 // --- Validation Schema ---
 const formSchema = z.object({
@@ -116,6 +118,22 @@ export default function UserLoginPage() {
             </form>
           </Form>
         </CardContent>
+        <CardFooter className="flex flex-col items-start gap-2 text-sm">
+          <div className="flex justify-between w-full">
+            <Link
+              href="/register/user"
+              className="text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+            >
+              Don't have an account? Sign Up
+            </Link>
+            <Link
+              href="/forgot-password"
+              className="text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+            >
+              Forgot Password?
+            </Link>
+          </div>
+        </CardFooter>
       </Card>
     </div>
   );

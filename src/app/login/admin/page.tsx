@@ -18,12 +18,14 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address."),
@@ -111,6 +113,22 @@ export default function AdminLoginPage() {
             </form>
           </Form>
         </CardContent>
+        <CardFooter className="flex flex-col items-start gap-2 text-sm">
+          <div className="flex justify-between w-full">
+            <Link
+              href="/register/admin"
+              className="text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+            >
+              Register a new Admin
+            </Link>
+            <Link
+              href="/forgot-password/admin"
+              className="text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+            >
+              Forgot Password?
+            </Link>
+          </div>
+        </CardFooter>
       </Card>
     </div>
   );

@@ -18,11 +18,13 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 // --- Validation Schema ---
 const formSchema = z
@@ -182,6 +184,14 @@ export default function UserRegisterPage() {
             </form>
           </Form>
         </CardContent>
+        <CardFooter className="justify-center">
+          <Link
+            href="/login/user"
+            className="text-sm text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+          >
+            Already have an account? Sign In
+          </Link>
+        </CardFooter>
       </Card>
     </div>
   );
