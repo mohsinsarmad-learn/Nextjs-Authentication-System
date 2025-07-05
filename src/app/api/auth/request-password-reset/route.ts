@@ -45,8 +45,11 @@ export async function POST(request: Request) {
       await resend.emails.send({
         from: from,
         to: email,
-        subject: "Your Password Reset Link",
-        react: PasswordResetEmail({ resetLink }),
+        subject: "Your Password Reset Request",
+        react: PasswordResetEmail({
+          resetLink,
+          username: user.firstname,
+        }),
       });
     }
 

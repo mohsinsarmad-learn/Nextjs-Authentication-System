@@ -44,7 +44,10 @@ export async function POST(request: Request) {
         from: from,
         to: email,
         subject: "Your Admin Account Password Reset Link",
-        react: PasswordResetEmail({ resetLink }),
+        react: PasswordResetEmail({
+          resetLink,
+          username: admin.firstname,
+        }),
       });
     }
 
