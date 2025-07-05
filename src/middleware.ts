@@ -1,7 +1,3 @@
-// src/middleware.ts
-
-// This line imports the default middleware from Auth.js.
-// It automatically handles session validation.
 export { default } from "next-auth/middleware";
 
 // The config object specifies which routes the middleware should apply to.
