@@ -78,8 +78,7 @@ const userSchema = new Schema<IUser>(
     },
     profilepic: {
       type: String,
-      //required: [true, "Profile picture is required"],
-      default: "/default-profile.png", // Default profile picture
+      default: "/default-avatar.png",
     },
     userType: { type: String, required: [true, "User type is required"] },
     UserId: { type: String, unique: true },

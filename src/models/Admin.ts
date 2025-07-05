@@ -75,8 +75,7 @@ const adminSchema = new Schema<IAdmin>(
     },
     profilepic: {
       type: String,
-      //required: [true, "Profile picture is required"],
-      default: "/default-profile.png", // Default profile picture
+      default: "/default-avatar.png", // Default profile picture
     },
     profilePicFileId: {
       type: String,
