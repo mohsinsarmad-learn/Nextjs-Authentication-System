@@ -55,8 +55,12 @@ export async function POST(request: Request) {
       await resend.emails.send({
         from: from,
         to: email,
-        subject: "Verify Your Email Address",
-        react: VerificationEmail({ verificationLink }),
+        subject: `Welcome to Project D1, ${firstname}!`,
+        // Pass the user's first name to the component
+        react: VerificationEmail({
+          verificationLink,
+          username: firstname,
+        }),
       });
     } catch (emailError) {
       console.error("Email sending error:", emailError);
