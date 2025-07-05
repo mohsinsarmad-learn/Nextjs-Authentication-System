@@ -1,19 +1,29 @@
-// src/app/api/auth/request-password-reset/admin/route.ts
 import { connectToDatabase } from "@/lib/dbConnect";
-import Admin from "@/models/Admin"; // Changed to Admin model
+import Admin from "@/models/Admin";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { Resend } from "resend";
 import { PasswordResetEmail } from "@/emails/PasswordResetEmail";
-
+import { passwordResetRequestSchema } from "@/schemas/backend/admin";
+import { z } from "zod";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
-  await connectToDatabase();
   try {
-    const { email } = await request.json();
+    const body = await request.json();
+    const validation = passwordResetRequestSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          message: "Invalid input data",
+          errors: validation.error.flatten().fieldErrors,
+        },
+        { status: 400 }
+      );
+    }
+    const { email } = validation.data;
+    await connectToDatabase();
     const admin = await Admin.findOne({ email });
-
     if (admin) {
       const resetToken = crypto.randomBytes(32).toString("hex");
       const passwordResetToken = crypto
@@ -29,10 +39,10 @@ export async function POST(request: Request) {
       await admin.save();
 
       const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password/admin?token=${resetToken}`;
-
+      //TODO:Fix From email address
       await resend.emails.send({
         from: "onboarding@resend.dev",
-        to: email, // Email goes to the admin themselves
+        to: email,
         subject: "Your Admin Account Password Reset Link",
         react: PasswordResetEmail({ resetLink }),
       });
@@ -46,6 +56,12 @@ export async function POST(request: Request) {
       { status: 200 }
     );
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { message: "Validation error", errors: error.errors },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
       { message: "An error occurred." },
       { status: 500 }

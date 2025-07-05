@@ -1,25 +1,28 @@
-// src/app/api/auth/reset-password/route.ts
 import { connectToDatabase } from "@/lib/dbConnect";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-
+import { passwordResetSchema } from "@/schemas/backend/user";
+import { z } from "zod";
 export async function POST(request: Request) {
-  await connectToDatabase();
   try {
-    const { token, newPassword } = await request.json();
+    const body = await request.json();
+    const validation = passwordResetSchema.safeParse(body);
 
-    if (!token || !newPassword) {
+    if (!validation.success) {
       return NextResponse.json(
-        { message: "Token and new password are required." },
+        {
+          message: "Invalid input data",
+          errors: validation.error.flatten().fieldErrors,
+        },
         { status: 400 }
       );
     }
+    const { token, newPassword } = validation.data;
 
-    // Hash the incoming token to match the one stored in the database
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    // Find the user with the valid, unexpired token
+    await connectToDatabase();
     const user = await User.findOne({
       passwordResetToken: hashedToken,
       passwordResetTokenExpires: { $gt: Date.now() },
@@ -32,9 +35,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Set the new password (the pre-save hook in the model will hash it)
     user.password = newPassword;
-    // Clear the reset token fields so it cannot be used again
     user.passwordResetToken = undefined;
     user.passwordResetTokenExpires = undefined;
 
@@ -45,6 +46,12 @@ export async function POST(request: Request) {
       { status: 200 }
     );
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { message: "Validation error", errors: error.errors },
+        { status: 400 }
+      );
+    }
     console.error("Reset Password Error:", error);
     return NextResponse.json(
       { message: "An error occurred during password reset." },

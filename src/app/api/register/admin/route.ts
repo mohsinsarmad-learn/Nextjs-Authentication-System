@@ -1,25 +1,29 @@
-// src/app/api/register/admin/route.ts
 import { connectToDatabase } from "@/lib/dbConnect";
 import Admin from "@/models/Admin";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { Resend } from "resend";
-import { AdminVerificationNotice } from "@/emails/AdminVerificationNotice"; // Import the admin template
-
+import { AdminVerificationNotice } from "@/emails/AdminVerificationNotice";
+import { adminRegisterSchema } from "@/schemas/backend/admin";
+import { z } from "zod";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
-  await connectToDatabase();
   try {
-    const { firstname, lastname, email, password, contact } =
-      await request.json();
+    const body = await request.json();
 
-    if (!firstname || !lastname || !email || !password) {
+    const validation = adminRegisterSchema.safeParse(body);
+    if (!validation.success) {
       return NextResponse.json(
-        { message: "All required fields must be provided." },
+        {
+          message: "Invalid input",
+          errors: validation.error.flatten().fieldErrors,
+        },
         { status: 400 }
       );
     }
+    const { firstname, lastname, email, password, contact } = validation.data;
+    await connectToDatabase();
 
     const existingAdmin = await Admin.findOne({ email });
     if (existingAdmin) {
@@ -29,7 +33,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // --- New Verification Logic ---
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
@@ -47,9 +50,7 @@ export async function POST(request: Request) {
 
     await newAdmin.save();
 
-    // --- Send Verification Email to IT Admin ---
     try {
-      // ADD &type=admin to the end of the URL
       const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}&type=admin`;
       const itAdminEmail = process.env.IT_ADMIN_EMAIL!;
 
@@ -58,10 +59,10 @@ export async function POST(request: Request) {
           "IT_ADMIN_EMAIL is not defined in environment variables."
         );
       }
-
+      //TODO:Fix From email address
       await resend.emails.send({
         from: "onboarding@resend.dev",
-        to: itAdminEmail, // Send email to the IT Admin
+        to: itAdminEmail,
         subject: "Action Required: New Admin Account Verification",
         react: AdminVerificationNotice({
           verificationLink,
@@ -84,6 +85,12 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { message: "Validation error", errors: error.errors },
+        { status: 400 }
+      );
+    }
     console.error("Admin Registration Error:", error);
     return NextResponse.json(
       {

@@ -1,20 +1,25 @@
-// src/app/api/auth/reset-password/admin/route.ts
 import { connectToDatabase } from "@/lib/dbConnect";
-import Admin from "@/models/Admin"; // Changed to Admin model
+import Admin from "@/models/Admin";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import { passwordResetSchema } from "@/schemas/backend/admin";
+import { z } from "zod";
 
 export async function POST(request: Request) {
-  await connectToDatabase();
   try {
-    const { token, newPassword } = await request.json();
-    if (!token || !newPassword) {
+    const body = await request.json();
+    const validation = passwordResetSchema.safeParse(body);
+    if (!validation.success) {
       return NextResponse.json(
-        { message: "Token and new password are required." },
+        {
+          message: "Invalid input data",
+          errors: validation.error.flatten().fieldErrors,
+        },
         { status: 400 }
       );
     }
-
+    const { token, newPassword } = validation.data;
+    await connectToDatabase();
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
     const admin = await Admin.findOne({
       passwordResetToken: hashedToken,
