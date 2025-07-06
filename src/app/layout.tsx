@@ -25,8 +25,9 @@ const fontMono = Inconsolata({
   variable: "--font-mono",
 });
 export const metadata: Metadata = {
-  title: "Web Application Project",
-  description: "D1 Evaluation Project",
+  title: "Nextjs-Authentication-System",
+  description:
+    "A feature-rich platform showcasing secure, role-based permissions, token-based email flows, and advanced admin controls, all built on a modern Next.js and Mongoose stack.",
 };
 
 export default function RootLayout({
