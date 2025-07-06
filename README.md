@@ -4,7 +4,6 @@ A modern, full-stack web application built with Next.js, Auth.js, and Shadcn UI.
 
 ![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 > This application provides a complete blueprint for a secure, feature-rich platform with distinct functionalities and permissions for both standard Users and privileged Admins.
 
