@@ -2,8 +2,8 @@
 
 A modern, full-stack web application built with Next.js, Auth.js, and Shadcn UI. This project is feature-complete, featuring a robust dual-role authentication system, advanced profile management, and comprehensive admin controls.
 
-![Status](https://img.shields.io/badge/Status-Completed-brightgreen)(.)
-![Version](https://img.shields.io/badge/Version-1.0.0-blue)(https://edu2skill.online)
+[![Status](https://img.shields.io/badge/Status-Completed-brightgreen)](.)
+[![Version](https://img.shields.io/badge/Version-1.0.0-blue)](https://edu2skill.online)
 
 > This application provides a complete blueprint for a secure, feature-rich platform with distinct functionalities and permissions for both standard Users and privileged Admins.
 
