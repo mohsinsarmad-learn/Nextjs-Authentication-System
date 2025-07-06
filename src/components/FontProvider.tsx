@@ -1,3 +1,4 @@
+// src/components/FontProvider.tsx
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
@@ -15,14 +16,26 @@ export function FontProvider({ children }: { children: React.ReactNode }) {
   const [font, setFont] = useState<Font>("font-sans");
 
   useEffect(() => {
-    document.body.classList.remove(
-      "font-sans",
-      "font-serif",
-      "font-mono",
-      "font-display",
-      "font-handwriting"
-    );
-    document.body.classList.add(font);
+    try {
+      const savedFont = localStorage.getItem("app-font") as Font;
+      if (savedFont) {
+        setFont(savedFont);
+      }
+    } catch (error) {
+      console.error("Could not read font from localStorage", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const bodyClasses = document.body.classList;
+    bodyClasses.remove("font-sans", "font-serif", "font-mono");
+    bodyClasses.add(font);
+
+    try {
+      localStorage.setItem("app-font", font);
+    } catch (error) {
+      console.error("Could not save font to localStorage", error);
+    }
   }, [font]);
 
   return (
