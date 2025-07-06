@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { ArrowRight, Github, Star } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function Hero() {
   return (
@@ -48,16 +47,16 @@ export function Hero() {
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
             <Button size="lg" className="group" asChild>
-              <Link href="/register">
+              <Link href="/dashboard">
                 Start Building
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
 
             <Button size="lg" variant="outline" asChild>
-              <Link href="/login">
+              <Link href="https://github.com/mohsinsarmad-learn/Thirty.perscent-">
                 <Github className="mr-2 h-4 w-4" />
-                View Demo
+                View
               </Link>
             </Button>
           </motion.div>

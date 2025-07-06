@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { ArrowRight, ExternalLink } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { motion } from "framer-motion";
+import { ArrowRight, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function CTASection() {
   return (
@@ -29,20 +29,21 @@ export function CTASection() {
                   Ready to Get Started?
                 </h2>
                 <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                  Experience the complete authentication system with user registration, email verification, role-based
-                  dashboards, and comprehensive user management.
+                  Experience the complete authentication system with user
+                  registration, email verification, role-based dashboards, and
+                  comprehensive user management.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
                   <Button size="lg" className="group" asChild>
-                    <Link href="/register">
+                    <Link href="/register/user">
                       Create Account
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </Button>
 
                   <Button size="lg" variant="outline" asChild>
-                    <Link href="/login">
+                    <Link href="/login/user">
                       Sign In
                       <ExternalLink className="ml-2 h-4 w-4" />
                     </Link>
@@ -69,5 +70,5 @@ export function CTASection() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
