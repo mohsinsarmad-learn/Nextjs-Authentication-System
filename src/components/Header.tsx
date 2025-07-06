@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import UserNav from "./UserNav";
+import { FontSwitcher } from "./FontSwitcher";
 import {
   Sheet,
   SheetContent,
@@ -90,13 +91,12 @@ export default function Header() {
       transition={{ duration: 0.5, ease: "easeInOut" }}
       className="py-4 px-4 sm:px-6 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50"
     >
-      {" "}
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/" className="text-xl font-bold tracking-tight">
           Project D1
         </Link>
 
-        <nav className="hidden md:flex items-center gap-2">
+        <nav className="hidden md:flex items-center gap-1">
           {session ? (
             <UserNav />
           ) : (
@@ -106,10 +106,12 @@ export default function Header() {
               </Button>
             ))
           )}
+          <FontSwitcher />
           <ThemeToggle />
         </nav>
 
-        <div className="md:hidden flex items-center gap-2">
+        <div className="md:hidden flex items-center gap-1">
+          <FontSwitcher />
           <ThemeToggle />
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
