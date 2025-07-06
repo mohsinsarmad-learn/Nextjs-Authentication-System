@@ -4,7 +4,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-
+import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import UserNav from "./UserNav";
@@ -84,7 +84,13 @@ export default function Header() {
   const navLinks = getNavLinks();
 
   return (
-    <header className="py-4 px-4 sm:px-6 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+    <motion.header
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: "easeInOut" }}
+      className="py-4 px-4 sm:px-6 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50"
+    >
+      {" "}
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/" className="text-xl font-bold tracking-tight">
           Project D1
@@ -186,6 +192,6 @@ export default function Header() {
           </Sheet>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
