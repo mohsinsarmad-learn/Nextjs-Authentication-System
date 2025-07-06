@@ -123,7 +123,7 @@ export function TechnologiesSection() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full hover:shadow-lg transition-shadow duration-300">
+              <Card className="h-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardHeader>
                   <div
                     className={`w-12 h-12 rounded-lg ${tech.bgColor} flex items-center justify-center mb-4`}
