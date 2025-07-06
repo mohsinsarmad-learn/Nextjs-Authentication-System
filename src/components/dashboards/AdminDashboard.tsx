@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -23,11 +23,12 @@ import { IUser } from "@/models/User";
 import DeleteUserDialog from "@/components/DeleteUserDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Search, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import AdminEditUserDialog from "@/components/AdminEditUserDialog";
@@ -36,10 +37,13 @@ import { toast } from "sonner";
 import ChangeAdminPasswordDialog from "@/components/ChangeAdminPasswordDialog";
 import EditAdminProfileDialog from "@/components/EditAdminProfileDialog";
 import ProfilePictureManager from "@/components/ProfilePictureManager";
+import { Input } from "../ui/input";
 export default function AdminDashboard() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [users, setUsers] = useState<IUser[]>([]);
+  const [masterUserList, setMasterUserList] = useState<IUser[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<IUser | null>(null);
@@ -50,20 +54,26 @@ export default function AdminDashboard() {
       setIsLoadingUsers(true);
       try {
         const response = await fetch("/api/users");
-        if (!response.ok) {
-          throw new Error("Failed to fetch users.");
-        }
+        if (!response.ok) throw new Error("Failed to fetch users.");
         const data = await response.json();
-        setUsers(data);
+        setMasterUserList(data);
       } catch (err: any) {
         setError(err.message);
       } finally {
         setIsLoadingUsers(false);
       }
     };
-
     fetchUsers();
   }, []);
+  const filteredUsers = useMemo(() => {
+    return masterUserList.filter(
+      (user) =>
+        user.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.UserId.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [masterUserList, searchQuery]);
 
   const handleUserDeleted = (deletedUserId: string) => {
     setUsers((prev) => prev.filter((user) => user.UserId !== deletedUserId));
@@ -166,116 +176,154 @@ export default function AdminDashboard() {
         <CardHeader>
           <CardTitle>User Management</CardTitle>
           <CardDescription>
-            View and manage all registered users.
+            View, search, edit, and manage all registered users.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {selectedUserIds.length > 0 && (
-            <div className="mb-4 flex items-center gap-2 bg-muted p-2 rounded-lg">
-              <p className="text-sm font-medium">
-                {selectedUserIds.length} user(s) selected.
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNavigateToBulkEdit}
-              >
-                <Pencil className="mr-2 h-4 w-4" /> Edit Selected
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleBulkDelete}
-              >
-                <Trash2 className="mr-2 h-4 w-4" /> Delete Selected
-              </Button>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+            {/* Search Input */}
+            <div className="relative w-full sm:max-w-xs">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search by name, email, or ID..."
+                className="pl-8 w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-          )}
+
+            {/* Bulk Action Buttons */}
+            {selectedUserIds.length > 0 && (
+              <div className="flex w-full sm:w-auto items-center justify-end gap-2 bg-muted p-2 rounded-lg">
+                <p className="text-sm font-medium">
+                  {selectedUserIds.length} selected
+                </p>
+                <Button
+                  size="sm"
+                  className="bg-blue-400 hover:bg-blue-500"
+                  onClick={handleNavigateToBulkEdit}
+                >
+                  <Pencil className="mr-2 h-4 w-4" /> Edit
+                </Button>
+                <Button
+                  className="bg-red-400 hover:bg-red-500"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" /> Delete
+                </Button>
+              </div>
+            )}
+          </div>
           {isLoadingUsers ? (
             <p>Loading users...</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50px]">
-                    <Checkbox
-                      checked={
-                        users.length > 0 &&
-                        selectedUserIds.length === users.length
-                      }
-                      onCheckedChange={(checked) => {
-                        setSelectedUserIds(
-                          checked ? users.map((u) => u.UserId) : []
-                        );
-                      }}
-                      aria-label="Select all rows"
-                    />
-                  </TableHead>
-                  <TableHead>User ID</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Verified</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={String(user._id)}>
-                    <TableCell>
+            <div className="border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">
                       <Checkbox
-                        checked={selectedUserIds.includes(user.UserId)}
-                        onCheckedChange={(checked) => {
-                          setSelectedUserIds((prev) =>
-                            checked
-                              ? [...prev, user.UserId]
-                              : prev.filter((id) => id !== user.UserId)
-                          );
-                        }}
-                        aria-label={`Select row for ${user.firstname}`}
+                        onCheckedChange={(checked) =>
+                          setSelectedUserIds(
+                            checked ? filteredUsers.map((u) => u.UserId) : []
+                          )
+                        }
+                        checked={
+                          filteredUsers.length > 0 &&
+                          selectedUserIds.length === filteredUsers.length
+                        }
                       />
-                    </TableCell>
-                    <TableCell>{user.UserId}</TableCell>
-                    <TableCell>
-                      {user.firstname} {user.lastname}
-                    </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={user.isVerified ? "default" : "destructive"}
-                      >
-                        {user.isVerified ? "Yes" : "No"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onSelect={() => setEditingUser(user)}
-                          >
-                            <Pencil className="mr-2 h-4 w-4" /> Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onSelect={(e) => e.preventDefault()}
-                            className="text-red-600 focus:text-red-600 focus:bg-red-50"
-                          >
-                            <DeleteUserDialog
-                              userId={user.UserId}
-                              onUserDeleted={handleUserDeleted}
-                            />
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+                    </TableHead>
+                    <TableHead className="w-[100px]">Avatar</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      User ID
+                    </TableHead>
+                    <TableHead className="hidden sm:table-cell">
+                      Status
+                    </TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.map((user) => (
+                    <TableRow key={String(user._id)}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedUserIds.includes(user.UserId)}
+                          onCheckedChange={(checked) =>
+                            setSelectedUserIds((prev) =>
+                              checked
+                                ? [...prev, user.UserId]
+                                : prev.filter((id) => id !== user.UserId)
+                            )
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Avatar>
+                          <AvatarImage
+                            src={user.profilepic as string}
+                            alt={user.firstname}
+                          />
+                          <AvatarFallback>
+                            {user.firstname.charAt(0)}
+                            {user.lastname.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium">
+                          {user.firstname} {user.lastname}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {user.email}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {user.UserId}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge
+                          variant={user.isVerified ? "default" : "destructive"}
+                        >
+                          {user.isVerified ? "Verified" : "Pending"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onSelect={() => setEditingUser(user)}
+                            >
+                              <Pencil className="mr-2 h-4 w-4" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onSelect={(e) => e.preventDefault()}
+                              className="p-0"
+                            >
+                              <DeleteUserDialog
+                                userId={user.UserId}
+                                onUserDeleted={handleUserDeleted}
+                              />
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
