@@ -2,8 +2,8 @@
 
 A modern, full-stack web application built with Next.js, Auth.js, and Shadcn UI. This project is feature-complete, featuring a robust dual-role authentication system, advanced profile management, and comprehensive admin controls.
 
-![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
-![Version](https://img.shields.io/badge/Version-1.0.0-blue)
+![Status](https://img.shields.io/badge/Status-Completed-brightgreen)(.)
+![Version](https://img.shields.io/badge/Version-1.0.0-blue)(https://edu2skill.online)
 
 > This application provides a complete blueprint for a secure, feature-rich platform with distinct functionalities and permissions for both standard Users and privileged Admins.
 
@@ -32,21 +32,21 @@ A modern, full-stack web application built with Next.js, Auth.js, and Shadcn UI.
 
 A curated selection of modern technologies used to build this application.
 
-| Category            | Technology                                                                                                 |
-| :------------------ | :--------------------------------------------------------------------------------------------------------- |
-| **Framework**       | ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)                 |
-| **Styling**         | ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css) |
-| **UI Components**   | ![Shadcn/ui](https://img.shields.io/badge/Shadcn/ui-latest-black?style=for-the-badge)                      |
-| **Animation**       | ![Framer Motion](https://img.shields.io/badge/Framer_Motion-latest-f200b2?style=for-the-badge&logo=framer) |
-| **Authentication**  | ![Auth.js](https://img.shields.io/badge/Auth.js-v5-blue?style=for-the-badge)                               |
-| **Database ORM**    | ![Mongoose](https://img.shields.io/badge/Mongoose-latest-880000?style=for-the-badge)                       |
-| **Email Service**   | ![Resend](https://img.shields.io/badge/Resend-latest-ea4335?style=for-the-badge)                           |
-| **Email Templates** | ![React Email](https://img.shields.io/badge/React_Email-latest-1a1a1a?style=for-the-badge&logo=react)      |
-| **Image Hosting**   | ![ImageKit](https://img.shields.io/badge/ImageKit-latest-ff9933?style=for-the-badge&logo=imagekit)         |
-| **Image Cropping**  | ![React Easy Crop](https://img.shields.io/badge/React_Easy_Crop-latest-blueviolet?style=for-the-badge)     |
-| **Avatars**         | ![Boring Avatars](https://img.shields.io/badge/Boring_Avatars-latest-important?style=for-the-badge)        |
-| **Validation**      | ![Zod](https://img.shields.io/badge/Zod-latest-3E6F9B?style=for-the-badge)                                 |
-| **Language**        | ![TypeScript](https://img.shields.io/badge/TypeScript-latest-3178C6?style=for-the-badge&logo=typescript)   |
+| Category            | Technology                                                                                                                                               |
+| :------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Framework**       | [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)                                        |
+| **Styling**         | [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)                   |
+| **UI Components**   | [![Shadcn/ui](https://img.shields.io/badge/Shadcn/ui-latest-black?style=for-the-badge)](https://ui.shadcn.com/)                                          |
+| **Animation**       | [![Framer Motion](https://img.shields.io/badge/Framer_Motion-latest-f200b2?style=for-the-badge&logo=framer)](https://www.framer.com/motion/)             |
+| **Authentication**  | [![Auth.js](https://img.shields.io/badge/Auth.js-v5-blue?style=for-the-badge)](https://authjs.dev/)                                                      |
+| **Database ORM**    | [![Mongoose](https://img.shields.io/badge/Mongoose-latest-880000?style=for-the-badge)](https://mongoosejs.com/)                                          |
+| **Email Service**   | [![Resend](https://img.shields.io/badge/Resend-latest-ea4335?style=for-the-badge)](https://resend.com/)                                                  |
+| **Email Templates** | [![React Email](https://img.shields.io/badge/React_Email-latest-1a1a1a?style=for-the-badge&logo=react)](https://react.email/)                            |
+| **Image Hosting**   | [![ImageKit](https://img.shields.io/badge/ImageKit-latest-ff9933?style=for-the-badge&logo=imagekit)](https://imagekit.io/)                               |
+| **Image Cropping**  | [![React Easy Crop](https://img.shields.io/badge/React_Easy_Crop-latest-blueviolet?style=for-the-badge)](https://github.com/ricardo-ch/react-easy-crop)  |
+| **Avatars**         | [![Boring Avatars](https://img.shields.io/badge/Boring_Avatars-latest-important?style=for-the-badge)](https://github.com/boringdesigners/boring-avatars) |
+| **Validation**      | [![Zod](https://img.shields.io/badge/Zod-latest-3E6F9B?style=for-the-badge)](https://zod.dev/)                                                           |
+| **Language**        | [![TypeScript](https://img.shields.io/badge/TypeScript-latest-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)              |
 
 ---
 
@@ -92,8 +92,8 @@ src/
 1.  **Clone the repository:**
 
     ```bash
-    git clone <your-repo-url>
-    cd <your-repo-name>
+    git clone <https://github.com/mohsinsarmad-learn/Nextjs-Authentication-System.git>
+    cd <Nextjs-Authentication-System>
     ```
 
 2.  **Install dependencies:**
@@ -128,8 +128,13 @@ src/
     ```
 
 4.  **Run the development server:**
+
     ```bash
     npm run dev
     ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## 🚀 Deployment of Project
+
+[Nextjs-Authentication-System](https://edu2skill.online)

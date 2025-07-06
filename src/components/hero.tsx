@@ -54,7 +54,7 @@ export function Hero() {
             </Button>
 
             <Button size="lg" variant="outline" asChild>
-              <Link href="https://github.com/mohsinsarmad-learn/Thirty.perscent-">
+              <Link href="https://github.com/mohsinsarmad-learn/Nextjs-Authentication-System">
                 <Github className="mr-2 h-4 w-4" />
                 View
               </Link>
