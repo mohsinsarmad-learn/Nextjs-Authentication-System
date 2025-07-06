@@ -1,4 +1,3 @@
-// src/lib/imagekit.ts
 import ImageKit from "imagekit";
 
 if (

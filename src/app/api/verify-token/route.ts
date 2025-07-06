@@ -1,4 +1,3 @@
-// src/app/api/verify-token/route.ts
 import { connectToDatabase } from "@/lib/dbConnect";
 import User from "@/models/User";
 import Admin from "@/models/Admin";
